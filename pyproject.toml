@@ -1,0 +1,27 @@
+[project]
+name = "Alfred"
+version = "0.1.0"
+description = "My butler which will help me for personal task or will represent me"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard]>=0.116.1",
+    "pydantic>=2.11.7",
+    "pydantic-settings>=2.10.1",
+    "requests>=2.32.4",
+    "uvicorn>=0.35.0",
+]  # Main Core
+
+[dependency-groups]
+app = [
+    "qdrant-client>=1.15.1",
+]
+dev = [
+    "flake8>=7.3.0",
+]
+front = [
+    "streamlit>=1.47.1",
+]
+
+#[tool.uv]
+#default-groups = ["app"]
