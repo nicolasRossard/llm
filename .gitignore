@@ -1,0 +1,10 @@
+.idea
+.venv
+.env
+**/__pycache__/
+front
+app
+ollama_data
+open-webui
+back/logs
+personal
