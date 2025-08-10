@@ -1,5 +1,5 @@
 run:
-	cd back/ && uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload #--env-file ../.env_local && cd ..
+	cd back/ && uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload --env-file ../.env && cd ..
 
 main:
 	cd app/ && uv python main.py

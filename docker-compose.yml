@@ -21,6 +21,8 @@ services:
       resources:
         limits:
           memory: 10G
+    networks:
+      - llm_net
 
   open-webui:
     image: ghcr.io/open-webui/open-webui:main
@@ -36,3 +38,9 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped
+    networks:
+      - llm_net
+
+networks:
+  llm_net:
+    external: true
