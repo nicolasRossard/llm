@@ -3,6 +3,10 @@ import os
 from logging.handlers import TimedRotatingFileHandler
 
 from pydantic_settings import BaseSettings
+import litellm
+
+litellm.callbacks = ["langfuse_otel"]
+
 
 # ---------------------------------------- Directories and filepath ----------------------------------------
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))

@@ -1,5 +1,5 @@
 from application.ports.user_side.usecase.answer_question import AnswerQuestion
-from domain.schema.question import Question
+from domain.schema.query import Question
 from domain.schema.answer import Answer
 from domain.service.rag_service import RagService
 

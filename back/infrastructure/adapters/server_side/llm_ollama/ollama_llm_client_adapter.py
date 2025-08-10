@@ -2,7 +2,7 @@ import requests
 from typing import List
 from application.ports.server_side.llm_client import LlmClient
 from domain.schema.document_chunk import DocumentChunk
-from domain.schema.question import Question
+from domain.schema.query import Question
 from domain.schema.answer import Answer
 
 
@@ -28,7 +28,7 @@ class OllamaLlmClientAdapter(LlmClient):
             raise RuntimeError(f"Ollama LLM call failed: {response.status_code} - {response.text}")
 
         result = response.json()
-        return result.get("response", "").strip()
+        return result.get("response", "").strip(), context_chunks
 
     def _build_prompt(self, question: str, context: str) -> str:
         return (
