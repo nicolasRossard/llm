@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from domain.schema.query import Question
+from domain.schema.query import Query
 from domain.schema.answer import Answer
 from application.ports.user_side.usecase_handler.answer_question_handler import AnswerQuestionHandler
 from domain.service.rag_service import RagService
@@ -24,18 +24,20 @@ litellm_use_case_handler = AnswerQuestionHandler(litellm_rag_service)
 @rag_router.post("/litellm/answer", response_model=AnswerDTO)
 def answer_question(request_dto: QuestionDTO):
     # Mapping DTO vers modèle du domaine
-    question = to_domain(request_dto)
+    query = to_domain(request_dto)
 
     # Exécution du cas d’usage
-    answer = use_case_handler.execute(question)
+    generated_answer = use_case_handler.execute(query)
 
-    @rag_router.post("/ollama/answer", response_model=AnswerDTO)
-    def answer_question(request_dto: QuestionDTO):
-        # Mapping DTO vers modèle du domaine
-        question = to_domain(request_dto)
+    return to_dto(generated_answer)
 
-        # Exécution du cas d’usage
-        answer = litellm_use_case_handler.execute(question)
+@rag_router.post("/ollama/answer", response_model=AnswerDTO)
+def answer_question(request_dto: QuestionDTO):
+    # Mapping DTO vers modèle du domaine
+    query = to_domain(request_dto)
+
+    # Exécution du cas d’usage
+    answer = litellm_use_case_handler.execute(query)
 
     # Mapping modèle du domaine → DTO de sortie
     return to_dto(answer)

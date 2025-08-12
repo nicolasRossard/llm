@@ -2,7 +2,7 @@ import requests
 from typing import List
 from application.ports.server_side.llm_client import LlmClient
 from domain.schema.document_chunk import DocumentChunk
-from domain.schema.query import Question
+from domain.schema.query import Query
 from domain.schema.answer import Answer
 
 
