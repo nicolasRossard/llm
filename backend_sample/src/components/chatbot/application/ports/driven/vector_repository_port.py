@@ -20,7 +20,7 @@ class VectorRepositoryPort(ABC):
         pass
 
     @abstractmethod
-    async def search(self, vector: List[float], top_k: int = 5) -> List[DocumentRetrieval]:
+    async def search(self, vector: List[float], top_k: int = 5) -> List[DocumentRetrievalVector]:
         """Search for the most similar documents to the given vector.
 
         Args:
