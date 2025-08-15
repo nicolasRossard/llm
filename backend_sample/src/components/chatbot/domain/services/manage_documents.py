@@ -10,7 +10,7 @@ class ManageDocuments:
         self.embedding_port = embedding_port
         self.document_processing_port = document_processing_port
 
-    def add_document(self, input_document: InputDocument) -> int:
+    def ingest_document(self, input_document: InputDocument) -> list[str]:
         """Add a new document to the repository by processing, embedding, and storing it.
 
         This method takes an input document, processes it into chunks, generates embeddings
@@ -45,5 +45,5 @@ class ManageDocuments:
             vectors.append(DocumentRetrievalVector(**vector_data))
 
         # Upsert the document into the vector repository
-        vectors_stored_count = self.vector_repository.upsert(vectors)
-        return vectors_stored_count  # TODO use status code instead of count
+        vector_stored_ids = self.vector_repository.upsert(vectors)
+        return vector_stored_ids  #  TODO improve this return with status code

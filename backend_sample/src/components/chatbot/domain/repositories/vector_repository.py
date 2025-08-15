@@ -26,15 +26,15 @@ class VectorRepository(ABC):
         pass
 
     @abstractmethod
-    def upsert(self, documents: List[DocumentRetrievalVector]) -> int:
+    def upsert(self, documents: List[DocumentRetrievalVector]) -> List[str]:
         """Insert or update documents in the vector storage.
 
         Args:
             documents (List[DocumentRetrievalVector]): List of documents with their vectors to be
-                inserted or updated.
+                inserted.
 
         Returns:
-            int: Number of documents successfully inserted or updated.
+            List[str]: List of IDs of documents successfully inserted.
         """
         pass
 
