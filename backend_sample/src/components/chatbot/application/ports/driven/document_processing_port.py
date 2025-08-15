@@ -42,14 +42,13 @@ class DocumentProcessingPort(ABC):
     @abstractmethod
     def process_document(self, file: InputDocument) -> List[DocumentRetrieval]:
         """
-        Processes a document by extracting text and splitting it into chunks.
+        Processes a document by extracting its text and splitting it into chunks.
 
         Args:
-            file (BinaryIO): A binary stream of the file content.
-            file_type (str): The type or format of the document
-                (e.g., 'pdf', 'docx', 'txt').
+            file (InputDocument): An InputDocument object containing the file content and metadata.
+
         Returns:
             List[DocumentRetrieval]: A list of DocumentRetrieval objects containing
-                the processed chunks.
+                the processed text chunks.
         """
         pass
