@@ -1,6 +1,3 @@
-import time
-from typing import Optional
-
 from src.components.chatbot.application.ports.driven import LLMPort, EmbeddingPort
 from src.components.chatbot.application.services.chatbot_service import ChatbotService
 from src.components.chatbot.domain.repositories import VectorRepository

@@ -79,8 +79,11 @@ class ChatbotService:
         llm_response = await self.llm_port.generate_response(messages)
         
         # 4. Format response with sources
-        rag_response = self.rag_service.format_response_with_sources(
-            llm_response.content, relevant_docs
+
+        # Create RAG response with content and sources
+        rag_response = RAGResponse( 
+            content=llm_response.content,
+            sources=relevant_docs
         )
         
         # Copy metadata from LLM response
