@@ -2,7 +2,7 @@ from typing import List, Optional
 from datetime import datetime, timezone
 from pydantic import BaseModel, Field, ConfigDict
 
-from .document_source import DocumentSource
+from .document_retrieval import DocumentRetrieval
 
 
 class Response(BaseModel):
@@ -26,5 +26,5 @@ class RAGResponse(Response):
     """
     model_config = ConfigDict(frozen=False)
 
-    sources: List[DocumentSource] = Field(default_factory=list)
+    sources: List[DocumentRetrieval] = Field(default_factory=list)
 
