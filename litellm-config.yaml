@@ -1,0 +1,5 @@
+model_list:
+  - model_name: llama3.2:1b      # Model alias
+    litellm_params:
+      model: ollama/llama3.2:1b  # Model name from provider
+      api_base: http://ollama:11434  # url
