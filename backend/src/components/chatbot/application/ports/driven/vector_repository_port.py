@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Any
 
-from backend_sample.src.components.chatbot.domain.value_objects import DocumentRetrievalVector, DocumentRetrieval
+from src.components.chatbot.domain.value_objects import DocumentRetrievalVector
 
 
 class VectorRepositoryPort(ABC):

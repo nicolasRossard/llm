@@ -1,8 +1,7 @@
 """
-Interface for repositories
+Interface for repositories (database access layer) in the chatbot domain.
 """
 
-from .conversation_repository import ConversationRepository
-from .knowledge_repository import KnowledgeRepository
+from .vector_repository import VectorRepository
 
-__all__ = ["ConversationRepository", "KnowledgeRepository"]
+__all__ = ["VectorRepository"]

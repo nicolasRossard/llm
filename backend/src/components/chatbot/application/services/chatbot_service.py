@@ -22,7 +22,6 @@ class ChatbotService:
     def __init__(
         self,
         llm_port: LLMPort,
-        embedding_port: EmbeddingPort,
         vector_repository: VectorRepository,
         top_k: int = 5,
         use_rag: bool = True,
@@ -31,17 +30,15 @@ class ChatbotService:
         
         Args:
             llm_port: Port for accessing the LLM service.
-            embedding_port: Port for generating text embeddings.
             vector_repository: Repository for vector database operations.
             top_k: Number of documents to retrieve for RAG.
             use_rag: Whether to use RAG or standard LLM generation.
         """
         self.llm_port = llm_port
-        self.embedding_port = embedding_port    
         self.vector_repository = vector_repository
         self.top_k = top_k
         self.use_rag = use_rag
-        self.rag_service = RAGService(vector_repository, llm_port, embedding_port)
+        self.rag_service = RAGService(vector_repository, llm_port)
     
     async def process_query(self, query: Query) -> Response | RAGResponse:
         """Process a chat query and generate a response.
@@ -70,10 +67,10 @@ class ChatbotService:
         
         # RAG flow
         # 1. Retrieve relevant documents
-        relevant_docs = self.rag_service.retrieve_relevant_context(query, self.top_k)
+        relevant_docs = await self.rag_service.retrieve_relevant_context(query, self.top_k)
         
         # 2. Create augmented prompt with context
-        messages = self.rag_service.create_augmented_prompt(query.content, relevant_docs)
+        messages = await self.rag_service.create_augmented_prompt(query.content, relevant_docs)
         
         # 3. Generate response from LLM
         llm_response = await self.llm_port.generate_response(messages)
