@@ -9,3 +9,4 @@ open-webui
 back/logs
 personal
 backend/logs
+qdrant_storage
