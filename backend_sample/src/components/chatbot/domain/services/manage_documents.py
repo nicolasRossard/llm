@@ -1,7 +1,7 @@
-from typing import Field, List
+from typing import List
 from enum import Enum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from src.components.chatbot.application.ports.driven import EmbeddingPort, DocumentProcessingPort
 from src.components.chatbot.domain.repositories import VectorRepository

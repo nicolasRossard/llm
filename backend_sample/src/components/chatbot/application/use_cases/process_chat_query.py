@@ -19,7 +19,6 @@ class ProcessChatQuery:
     def __init__(
         self,
         llm_port: LLMPort,
-        embedding_port: EmbeddingPort,
         vector_repository: VectorRepository,
         top_k: int = 5,
         use_rag: bool = True,
@@ -28,14 +27,12 @@ class ProcessChatQuery:
         
         Args:
             llm_port: Port for accessing the LLM service.
-            embedding_port: Port for generating text embeddings.
             vector_repository: Repository for vector database operations.
             top_k: Number of documents to retrieve for RAG.
             use_rag: Whether to use RAG or standard LLM generation.
         """
         self.service = ChatbotService(
             llm_port=llm_port,
-            embedding_port=embedding_port,
             vector_repository=vector_repository,
             top_k=top_k,
             use_rag=use_rag
