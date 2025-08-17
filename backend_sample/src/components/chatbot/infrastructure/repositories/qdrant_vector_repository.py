@@ -1,6 +1,7 @@
 """Qdrant Vector Repository implementing the VectorRepository interface."""
 
 from typing import List
+from uuid import uuid4
 
 from src.components.chatbot.application.ports.driven import EmbeddingPort
 from src.components.chatbot.domain.repositories import VectorRepository
@@ -36,13 +37,13 @@ class QdrantVectorRepository(VectorRepository):
             List of retrieved documents ranked by relevance
         """
         # Generate embedding for the query
-        query_vector = await self.embedding_port.generate_embedding(query.content)
+        # query_vector = await self.embedding_port.generate_embedding(query.content)
         
         # This would be a real implementation calling the Qdrant search API
         # For mock purposes, return dummy documents
         return [
             DocumentRetrieval(
-                id=f"doc{i}",
+                id=uuid4(),
                 content=f"This is document {i} content that is relevant to the query: {query.content}",
                 metadata={"source": f"source{i}", "title": f"Document {i}"},
                 score=0.9 - (i * 0.1)

@@ -17,5 +17,5 @@ class InputDocument(BaseModel):
         type (DocumentType): The formalized type of the document.
     """
 
-    content: BinaryIO
+    content: bytes
     type: DocumentType

@@ -22,7 +22,7 @@ class RAGService:
         self.vector_repository = vector_repository
         self.llm_port = llm_port
     
-    def retrieve_relevant_context(self, query: Query, top_k: int = 5) -> List[DocumentRetrieval]:
+    async def retrieve_relevant_context(self, query: Query, top_k: int = 5) -> List[DocumentRetrieval]:
         """Retrieve the most relevant documents for a given query.
         
         Args:
@@ -33,10 +33,10 @@ class RAGService:
             List of relevant documents.
         """
         # Use the vector repository to perform semantic search
-        relevant_docs = self.vector_repository.search(query, top_k=top_k)
+        relevant_docs = await self.vector_repository.search(query, top_k=top_k)
         return relevant_docs
     
-    def create_augmented_prompt(self, query: str, documents: List[DocumentRetrieval]) -> List[Message]:
+    async def create_augmented_prompt(self, query: str, documents: List[DocumentRetrieval]) -> List[Message]:
         """Create a prompt with retrieved context for the LLM.
         
         Args:
