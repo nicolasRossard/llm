@@ -20,7 +20,7 @@ class OllamaLLMAdapter(LLMPort):
     domain model and the external Ollama API.
     """
     
-    def __init__(self, base_url: str = "http://localhost:11434", model: str = "llama3.2:1b"):
+    def __init__(self, base_url: str = "http://localhost:11434", model: str = "llama2"):
         """Initialize the adapter with API connection details.
         
         Args:

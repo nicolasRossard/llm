@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from src.components.chatbot.application.ports.driving import ChatbotPort
 from src.components.chatbot.domain.value_objects import Query, Response
 from src.components.chatbot.domain.value_objects.input_document import DocumentType, InputDocument
+from src.components.chatbot.infrastructure.api.v1.dto import response_to_dto
 from src.components.chatbot.infrastructure.di.container import get_chatbot_port
 
 
@@ -34,7 +35,7 @@ async def process_chat_message(
         response = await chatbot_port.process_chat_message(query)
         
         # Transform the domain response to an API response
-        return response.model_dump_json()
+        return response_to_dto(response)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

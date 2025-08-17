@@ -13,7 +13,7 @@ class Response(BaseModel):
     model_config = ConfigDict(frozen=False)
 
     content: str
-    generated_at: datetime = Field(default_factory=datetime.now(timezone.utc))
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     model_used: Optional[str] = None
     processing_time_ms: Optional[int] = None
     input_tokens: Optional[int] = None
