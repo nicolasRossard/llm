@@ -10,31 +10,34 @@ logger = logging.getLogger(__name__)
 
 
 class OllamaEmbeddingAdapter(EmbeddingPort):
-    """Adapter for Ollama embedding API implementing the Embedding Port.
+    """Adapter for the Ollama embedding API implementing the EmbeddingPort.
     
-    This is a secondary/driven adapter that translates between the application's
+    This is a driven adapter that translates between the application's
     domain model and the external Ollama embedding API.
     """
-    
+
     def __init__(
-        self, 
-        base_url: str = "http://localhost:11434", 
+        self,
+        base_url: str = "http://localhost:11434",
         model: str = "nomic-embed-text:v1.5",
-        fallback_dimension: int = 768
-    ):
+        fallback_dimension: int = 768,
+    ) -> None:
         """Initialize the adapter with API connection details.
         
         Args:
-            base_url: Ollama API base URL
-            model: Model identifier to use for embeddings
-            fallback_dimension: Dimension of fallback embeddings if API fails
+            base_url: Ollama API base URL.
+            model: Model identifier to use for embeddings.
+            fallback_dimension: Dimension of fallback embeddings if API fails.
         """
-        self.base_url = base_url.rstrip('/')
-        self.model = model
-        self.fallback_dimension = fallback_dimension
-        self.client = httpx.AsyncClient(timeout=30.0)  # 30 second timeout for embeddings
-        logger.info(f"Initialized Ollama Embedding adapter with model {model} at {base_url}")
-    
+        super().__init__(model=model, fallback_dimension=fallback_dimension)
+        self.base_url = base_url.rstrip("/")
+        self.client = httpx.AsyncClient(timeout=30.0)
+        logger.info(
+            "Initialized OllamaEmbeddingAdapter with model '%s' at '%s'",
+            self.model,
+            self.base_url,
+        )
+        
     async def generate_embedding(self, text: str) -> list[float]:
         """Generate an embedding vector for a given text.
         

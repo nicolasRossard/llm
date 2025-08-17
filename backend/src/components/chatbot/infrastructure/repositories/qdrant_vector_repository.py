@@ -6,6 +6,10 @@ from uuid import uuid4
 from src.components.chatbot.application.ports.driven import EmbeddingPort
 from src.components.chatbot.domain.repositories import VectorRepository
 from src.components.chatbot.domain.value_objects import DocumentRetrieval, DocumentRetrievalVector, Query
+from src.components.chatbot.infrastructure.repositories.repositories_settings import repo_settings
+from qdrant_client import AsyncQdrantClient
+from qdrant_client.models import PointStruct
+from qdrant_client import models
 
 
 class QdrantVectorRepository(VectorRepository):
@@ -15,16 +19,46 @@ class QdrantVectorRepository(VectorRepository):
     using the Qdrant vector database.
     """
     
-    def __init__(self, collection_name: str, embedding_port: EmbeddingPort):
-        """Initialize the repository.
+    def __init__(self,
+                 embedding_port: EmbeddingPort,
+                 collection_name: str = repo_settings.collection_name,
+                 host: str = repo_settings.base_url, port: int = repo_settings.grpc_port,
+                 distance: models.Distance = models.Distance.COSINE):
+        """Initialize the Qdrant Vector Repository.
         
         Args:
-            collection_name: Name of the Qdrant collection to use
-            embedding_port: Port for generating embeddings
+            embedding_port: Port for generating embeddings from text content.
+            collection_name: Name of the Qdrant collection to use for storage.
         """
-        self.collection_name = collection_name
         self.embedding_port = embedding_port
-        # In a real implementation, we would initialize the Qdrant client here
+        self.client = AsyncQdrantClient(
+            host=host,
+            port=port,
+            grpc=True
+        )
+        self.collection_parameters = {
+            "name": collection_name,
+            "distance": distance,
+            "vector_size": self.embedding_port.fallback_dimension
+        }
+
+        self._ensure_collection_exists()
+    
+    async def _ensure_collection_exists(self) -> None:
+        """Ensure the collection exists, create it if it doesn't."""
+        
+        # Check if collection exists
+        collection_exists = await self.client.collection_exists(self.collection_name)
+        
+        if not collection_exists:
+            # Collection doesn't exist, create it
+            await self.client.create_collection(
+            collection_name=self.collection_parameters['name'],
+            vectors_config=models.VectorParams(
+                size=self.collection_parameters['fallback_dimension'],
+                distance=self.collection_parameters['distance']
+            ),
+            )
     
     async def search(self, query: Query, top_k: int = 5) -> List[DocumentRetrieval]:
         """Search for the most relevant documents given a query.
@@ -36,6 +70,7 @@ class QdrantVectorRepository(VectorRepository):
         Returns:
             List of retrieved documents ranked by relevance
         """
+
         # Generate embedding for the query
         # query_vector = await self.embedding_port.generate_embedding(query.content)
         
@@ -60,5 +95,23 @@ class QdrantVectorRepository(VectorRepository):
         Returns:
             List of IDs of documents successfully inserted
         """
-        # This would be a real implementation calling the Qdrant upsert API
-        return [doc.id for doc in documents]
+        await self._ensure_collection_exists()  # Check if collection exists before upserting
+        
+        points = [
+            PointStruct(
+                id=str(doc.id),
+                vector=doc.vector,
+                payload={
+                    "content": doc.content,
+                    "metadata": doc.metadata or {}
+                }
+            )
+            for doc in documents
+        ]
+        
+        await self.client.upsert(
+            collection_name=self.collection_parameters['name'],
+            points=points
+        )
+        
+        return [str(doc.id) for doc in documents]

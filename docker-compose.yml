@@ -41,6 +41,17 @@ services:
     networks:
       - llm_net
 
+  qdrant:
+    container_name: "rag_personal_vector_db"
+    restart: on-failure
+    image: qdrant/qdrant:v1.13.3
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - ./qdrant_storage:/qdrant/storage:z
+    networks:
+      - llm_net
 networks:
   llm_net:
     external: true
