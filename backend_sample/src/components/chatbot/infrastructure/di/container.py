@@ -52,13 +52,11 @@ def get_chatbot_service() -> ChatbotService:
     """Get the chatbot application service with all its dependencies."""
     # Get all required dependencies
     llm_port = get_llm_port()
-    embedding_port = get_embedding_port()
     vector_repository = get_vector_repository()
     
     # Create the application service with the dependencies
     return ChatbotService(
         llm_port=llm_port,
-        embedding_port=embedding_port,
         vector_repository=vector_repository,
         top_k=settings.ollama.top_k_documents,
         use_rag=settings.ollama.use_rag
