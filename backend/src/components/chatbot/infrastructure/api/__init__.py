@@ -1,8 +1,8 @@
-from .v1.chatbot_routes import chatbot_rag_router
+from .v1.rag_routes import rag_router
 
 # Export routers as actual APIRouter objects
 __routers__ = [
-    chatbot_rag_router
+    rag_router
 ]
 
 __all__ = ["__routers__"]

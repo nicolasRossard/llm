@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List
 from src.components.chatbot.domain.value_objects import DocumentRetrieval
 
+
 class TextChunkingPort(ABC):
     """
     Port interface for chunking text into smaller segments.

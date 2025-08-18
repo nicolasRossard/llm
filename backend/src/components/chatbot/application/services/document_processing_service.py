@@ -30,6 +30,7 @@ class DocumentProcessingService:
             text_chunking_port: Port for chunking text into smaller segments
         """
         # Create the manage_documents service with the provided dependencies
+        self.vector_repository = vector_repository
         self.manage_documents = ManageDocuments(
             vector_repository=vector_repository,
             embedding_port=embedding_port,
