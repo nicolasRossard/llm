@@ -1,6 +1,6 @@
 import time
-from backend.src.components.chatbot.domain.services.manage_documents import ManageDocuments
-from backend.src.components.chatbot.domain.value_objects.input_document import DocumentIngestionResult, InputDocument
+from src.components.chatbot.domain.services.manage_documents import ManageDocuments
+from src.components.chatbot.domain.value_objects.input_document import DocumentIngestionResult, InputDocument
 from src.components.chatbot.application.ports.driven.text_extraction_port import TextExtractionPort
 from src.components.chatbot.application.ports.driven.text_chunking_port import TextChunkingPort
 from src.components.chatbot.application.ports.driven import EmbeddingPort

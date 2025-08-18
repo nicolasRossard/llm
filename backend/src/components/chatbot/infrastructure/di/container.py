@@ -70,8 +70,8 @@ def get_text_extraction_port() -> TextExtractionPort:
 def get_text_chunking_port() -> TextChunkingPort:
     """Get the implementation of the text chunking port."""
     return NaiveTextChunkingAdapter(
-        chunk_size=document_ingestion_settings.document_processing.chunk_size,
-        overlap=document_ingestion_settings.document_processing.chunk_overlap
+        chunk_size=document_ingestion_settings.chunk_size,
+        overlap=document_ingestion_settings.overlap
     )
 
 
