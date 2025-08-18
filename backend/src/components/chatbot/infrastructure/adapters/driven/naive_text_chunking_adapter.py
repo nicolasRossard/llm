@@ -56,7 +56,6 @@ class NaiveTextChunkingAdapter(TextChunkingPort):
                         content=chunk_text,
                         metadata=enhanced_metadata
                     )
-                self.logger.debug(f"*************Chunk {chunk_index}: {chunk.id}")
                 chunks.append(chunk)
                 chunk_index += 1
         
