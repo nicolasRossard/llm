@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from src.components.chatbot.application.ports.driving import ChatbotPort
+from src.components.chatbot.application.use_cases import ProcessChatQuery
 from src.components.chatbot.domain.value_objects import Query, Response
 from src.components.chatbot.domain.value_objects.input_document import DocumentType, InputDocument
 from src.components.chatbot.infrastructure.api.v1.dto import response_to_dto
@@ -30,9 +31,9 @@ async def process_chat_message(
     try:
         # Convert the message to a domain Query object
         query = Query(content=message)
-        
+
         # Process the query through the port
-        response = await chatbot_port.process_chat_message(query)
+        response = await ProcessChatQuery(chatbot_port=chatbot_port).execute(query)
         
         # Transform the domain response to an API response
         return response_to_dto(response)

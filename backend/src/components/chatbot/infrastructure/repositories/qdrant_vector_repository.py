@@ -18,14 +18,14 @@ class QdrantVectorRepository(VectorRepository):
     This repository is responsible for storing and retrieving document vectors
     using the Qdrant vector database.
     """
-    
-    def __init__(self,    
-        embedding_port: EmbeddingPort,
-        collection_name: str = repo_settings.collection_name,
-        host: str = repo_settings.base_url,
-        port: int = repo_settings.grpc_port,
-        distance: models.Distance = models.Distance.COSINE
-        ):
+
+    def __init__(self,
+                 embedding_port: EmbeddingPort,
+                 collection_name: str = repo_settings.collection_name,
+                 host: str = repo_settings.base_url,
+                 port: int = repo_settings.grpc_port,
+                 distance: models.Distance = models.Distance.COSINE
+                 ):
         """Initialize the Qdrant Vector Repository.
         
         Attributes:
@@ -37,10 +37,11 @@ class QdrantVectorRepository(VectorRepository):
             The constructor automatically ensures the specified collection exists in the database
             by calling _ensure_collection_exists().
         """
-        
+
         self.logger = logging.getLogger(self.__class__.__name__)
-        self.logger.info(f"Initializing QdrantVectorRepository with host={host}, port={port}, collection={collection_name}")
-        
+        self.logger.info(
+            f"Initializing QdrantVectorRepository with host={host}, port={port}, collection={collection_name}")
+
         self.embedding_port = embedding_port
         self.client = AsyncQdrantClient(
             host=host,
@@ -52,29 +53,28 @@ class QdrantVectorRepository(VectorRepository):
             "distance": distance,
             "vector_size": self.embedding_port.fallback_dimension
         }
-        
+
         self.logger.debug(f"Collection parameters: {self.collection_parameters}")
-        self._ensure_collection_exists()
-    
+
     async def _ensure_collection_exists(self) -> None:
         """Ensure the collection exists, create it if it doesn't."""
-        
+
         try:
             collection_name = self.collection_parameters['name']
             self.logger.debug(f"Checking if collection '{collection_name}' exists")
-            
+
             # Check if collection exists
             collection_exists = await self.client.collection_exists(collection_name)
-            
+
             if not collection_exists:
                 self.logger.info(f"Collection '{collection_name}' does not exist, creating it")
                 # Collection doesn't exist, create it
                 await self.client.create_collection(
-                collection_name=self.collection_parameters['name'],
-                vectors_config=models.VectorParams(
-                    size=self.collection_parameters['vector_size'],
-                    distance=self.collection_parameters['distance']
-                ),
+                    collection_name=self.collection_parameters['name'],
+                    vectors_config=models.VectorParams(
+                        size=self.collection_parameters['vector_size'],
+                        distance=self.collection_parameters['distance']
+                    ),
                 )
                 self.logger.info(f"Successfully created collection '{collection_name}'")
             else:
@@ -82,7 +82,7 @@ class QdrantVectorRepository(VectorRepository):
         except Exception as e:
             self.logger.error(f"Failed to ensure collection exists: {e}")
             raise
-    
+
     async def search(self, query: Query, top_k: int = 5) -> List[DocumentRetrieval]:
         """Search for the most relevant documents given a query.
         
@@ -93,33 +93,43 @@ class QdrantVectorRepository(VectorRepository):
         Returns:
             List of retrieved documents ranked by relevance
         """
-        
+
         self.logger.info(f"Searching for documents with query: '{query.content[:100]}...' (top_k={top_k})")
-        
+        await self._ensure_collection_exists()
+
         try:
             # Generate embedding for the query
-            # query_vector = await self.embedding_port.generate_embedding(query.content)
-            
-            # This would be a real implementation calling the Qdrant search API
-            # For mock purposes, return dummy documents
-            results = [
-                DocumentRetrieval(
-                    id=uuid4(),
-                    content=f"This is document {i} content that is relevant to the query: {query.content}",
-                    metadata={"source": f"source{i}", "title": f"Document {i}"},
-                    score=0.9 - (i * 0.1)
-                )
-                for i in range(min(3, top_k))
-            ]
-            
-            self.logger.info(f"Found {len(results)} documents for query")
-            self.logger.debug(f"Search results scores: {[doc.score for doc in results]}")
-            
-            return results
+            query_vector = await self.embedding_port.generate_embedding(query.content)
+
+            # Perform hybrid search using Qdrant
+            search_result = await self.client.search(
+                collection_name=self.collection_parameters['name'],
+                query_vector=query_vector,
+                limit=top_k,
+                with_payload=True,
+                with_vectors=False
+            )
+
         except Exception as e:
             self.logger.error(f"Error during search operation: {e}")
             raise
-    
+
+        # Convert Qdrant results to domain objects
+        results = [
+            DocumentRetrieval(
+                id=point.id,
+                content=point.payload.get("content", ""),
+                metadata=point.payload.get("metadata", {}),
+                score=point.score
+            )
+            for point in search_result
+        ]
+
+        self.logger.info(f"Found {len(results)} documents for query")
+        self.logger.debug(f"Search results scores: {[doc.score for doc in results]}")
+
+        return results
+
     async def upsert(self, documents: List[DocumentRetrievalVector]) -> List[str]:
         """Insert or update documents in the vector storage.
         
@@ -129,12 +139,12 @@ class QdrantVectorRepository(VectorRepository):
         Returns:
             List of IDs of documents successfully inserted
         """
-        
+
         self.logger.info(f"Upserting {len(documents)} documents to collection '{self.collection_parameters['name']}'")
-        
+
         try:
             await self._ensure_collection_exists()  # Check if collection exists before upserting
-            
+
             points = [
                 PointStruct(
                     id=str(doc.id),
@@ -146,18 +156,18 @@ class QdrantVectorRepository(VectorRepository):
                 )
                 for doc in documents
             ]
-            
+
             self.logger.debug(f"Created {len(points)} points for upsert operation")
-            
+
             await self.client.upsert(
                 collection_name=self.collection_parameters['name'],
                 points=points
             )
-            
+
             document_ids = [str(doc.id) for doc in documents]
             self.logger.info(f"Successfully upserted {len(document_ids)} documents")
             self.logger.debug(f"Upserted document IDs: {document_ids[:5]}...")  # Log first 5 IDs
-            
+
             return document_ids
         except Exception as e:
             self.logger.error(f"Error during upsert operation: {e}")

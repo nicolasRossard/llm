@@ -1,5 +1,6 @@
 """Package initialization for the driving adapters."""
 
-from src.components.chatbot.infrastructure.adapters.driving.chatbot_adapter import ChatbotAdapter
+from .chatbot_adapter import ChatbotAdapter
+from .document_ingestion_adapter import DocumentIngestionAdapter
 
-__all__ = ["ChatbotAdapter"]
+__all__ = ["ChatbotAdapter", "DocumentIngestionAdapter"]

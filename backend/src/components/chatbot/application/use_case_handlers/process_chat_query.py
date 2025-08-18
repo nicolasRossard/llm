@@ -1,10 +1,8 @@
-from src.components.chatbot.application.ports.driven import LLMPort, EmbeddingPort
-from src.components.chatbot.application.services.chatbot_service import ChatbotService
-from src.components.chatbot.domain.repositories import VectorRepository
+from src.components.chatbot.application.ports.driving import ChatbotPort
 from src.components.chatbot.domain.value_objects import Query, Response
 
 
-class ProcessChatQuery:
+class ProcessChatQuery(ChatbotPort):
     """Application use case for processing a chat query using RAG.
     
     This class is maintained for backward compatibility.
@@ -18,27 +16,16 @@ class ProcessChatQuery:
     
     def __init__(
         self,
-        llm_port: LLMPort,
-        vector_repository: VectorRepository,
-        top_k: int = 5,
-        use_rag: bool = True,
+        chatbot_service
     ):
         """Initialize the use case with its dependencies.
-        
+
         Args:
-            llm_port: Port for accessing the LLM service.
-            vector_repository: Repository for vector database operations.
-            top_k: Number of documents to retrieve for RAG.
-            use_rag: Whether to use RAG or standard LLM generation.
+            chatbot_service: An instance of ChatbotService that handles the chat query processing.
         """
-        self.service = ChatbotService(
-            llm_port=llm_port,
-            vector_repository=vector_repository,
-            top_k=top_k,
-            use_rag=use_rag
-        )
+        self.chatbot_service = chatbot_service
     
-    async def execute(self, query: Query) -> Response:
+    async def process_chat_message(self, query: Query) -> Response:
         """Execute the complete chat query processing.
         
         This method is maintained for backward compatibility.
@@ -50,4 +37,4 @@ class ProcessChatQuery:
         Returns:
             Response: The generated response, with sources if RAG is used.
         """
-        return await self.service.process_query(query)
+        return await self.chatbot_service.process_query(query)
