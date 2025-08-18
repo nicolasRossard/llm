@@ -12,6 +12,7 @@ dependencies = [
     "opentelemetry-sdk>=1.36.0",
     "pydantic>=2.11.7",
     "pydantic-settings>=2.10.1",
+    "pypdf2>=3.0.1",
     "qdrant-client>=1.15.1",
     "requests>=2.32.4",
     "uvicorn>=0.35.0",

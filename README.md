@@ -28,7 +28,7 @@ backend
 │           │   │              # (e.g., ChatbotPort interface)
 │           │   ├── services   # Implementation of application services that orchestrate use cases
 │           │   │              # (e.g., ChatCompletionService)
-│           │   └── use_cases  # Business logic specific to each use case
+│           │   └── use_case_handlers  # Business logic specific to each use case which are implemented with driving port interfaces
 │           ├── domain         # Domain layer - core business rules and concepts
 │           │   ├── entities   # Business objects with identity and lifecycle
 │           │   │              # (e.g., Message, Conversation, Document)
@@ -46,7 +46,7 @@ backend
 │               │              # (e.g., ChatbotRESTAdapter)
 │               ├── api        # API definition and routing
 │               │   └── v1     # API version 1
-│               │       ├── chatbot_routes.py # FastAPI route definitions for chatbot
+│               │       ├── rag_routes.py # FastAPI route definitions for rag
 │               │       ├── dto.py           # Data Transfer Objects for API requests/responses
 │               ├── config     # Infrastructure-specific configuration
 │               │              # (e.g., QdrantConfig, LLMConfig)
