@@ -40,7 +40,7 @@ class DocumentProcessingService:
     
     async def ingest_document(
         self, 
-        document: InputDocument,
+        input_document: InputDocument,
     ) -> DocumentIngestionResult:
         """Execute the complete document processing and storage workflow.
         
@@ -67,7 +67,7 @@ class DocumentProcessingService:
         
         # Process the document using the domain service
         result = await self.manage_documents.ingest_document(
-            input_document=document,
+            input_document=input_document,
         )
         
         # Calculate total processing time
@@ -76,9 +76,9 @@ class DocumentProcessingService:
         # Compile all metrics
         metrics = {
             # Basic document info
-            "document_size_bytes": len(document.content),
-            "document_type": document.type.value,
-            "filename": document.filename,
+            "document_size_bytes": len(input_document.content),
+            "document_type": input_document.type.value,
+            "filename": input_document.filename,
                         
             # Timing
             "total_processing_time_ms": int(total_time * 1000),
@@ -103,8 +103,8 @@ class DocumentProcessingService:
             metrics["ingestion_success_rate"] = 0
             
         # Add document ID if available
-        if hasattr(document, 'id') and document.id:
-            metrics["document_id"] = document.id
+        if hasattr(input_document, 'id') and input_document.id:
+            metrics["document_id"] = input_document.id
             
         # Merge any metrics from the result if available
         if hasattr(result, 'metrics') and result.metrics:

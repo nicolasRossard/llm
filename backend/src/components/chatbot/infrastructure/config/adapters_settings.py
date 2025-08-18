@@ -10,7 +10,7 @@ class OllamaSettings(BaseSettings):
 
     # Generation settings
     llm_model: str = "llama3.2:1b"
-    embedding_model: str = "mxbai-embed-large-v1"  # Can be same or different model
+    embedding_model: str = "nomic-embed-text:v1.5"  # Can be same or different model
 
     # Generation parameters
     temperature: float = 0.2
@@ -19,7 +19,7 @@ class OllamaSettings(BaseSettings):
 
     # Vector database settings
     vector_collection: str = "documents"
-    vector_dimension: int = 1024
+    vector_dimension: int = 768
 
     # RAG settings
     top_k_documents: int = 5

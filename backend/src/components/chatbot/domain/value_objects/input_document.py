@@ -16,6 +16,7 @@ class InputDocument(BaseModel):
         content (BinaryIO): The binary content of the document.
         type (DocumentType): The formalized type of the document.
     """
+    # TODO add id
     filename: str
     content: bytes
     type: DocumentType

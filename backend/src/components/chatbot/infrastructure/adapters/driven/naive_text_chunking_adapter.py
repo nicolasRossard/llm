@@ -1,4 +1,4 @@
-import uuid
+import logging
 
 from src.components.chatbot.application.ports.driven import TextChunkingPort
 from src.components.chatbot.domain.value_objects import DocumentRetrieval
@@ -13,8 +13,10 @@ class NaiveTextChunkingAdapter(TextChunkingPort):
     def __init__(self, chunk_size: int = 1000, overlap: int = 200):
         self.chunk_size = chunk_size
         self.overlap = overlap
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger.info(f"Initialized NaiveTextChunkingAdapter with chunk_size={chunk_size}, overlap={overlap}")
 
-    def chunk_text(self, text: str, metadata: dict) -> list[DocumentRetrieval]:
+    async def chunk_text(self, text: str, metadata: dict) -> list[DocumentRetrieval]:
         """
         Splits the input text into chunks of the specified size with overlap.
 
@@ -26,13 +28,20 @@ class NaiveTextChunkingAdapter(TextChunkingPort):
             list[DocumentRetrieval]: A list of DocumentRetrieval objects containing 
                 text chunks with unique IDs and metadata.
         """
+        self.logger.info(f"Starting text chunking for text of length {len(text)}")
+        self.logger.debug(f"Input metadata: {metadata}")
+        
         chunks = []
         step = self.chunk_size - self.overlap
         chunk_index = 0
         
+        self.logger.info(f"Using step size: {step}")
+        
         for i in range(0, len(text), step):
             chunk_text = text[i:i + self.chunk_size]
             if chunk_text.strip():  # Only add non-empty chunks
+                self.logger.debug(f"Processing chunk {chunk_index} at position {i}-{min(i + self.chunk_size, len(text))}")
+                
                 # Create enhanced metadata with chunk information
                 enhanced_metadata = metadata.copy()
                 enhanced_metadata.update({
@@ -42,13 +51,16 @@ class NaiveTextChunkingAdapter(TextChunkingPort):
                     'chunk_length': len(chunk_text)
                 })
                 
-                chunks.append(
-                    DocumentRetrieval(
-                        id=uuid.uuid4(),
+                self.logger.debug(f"Enhanced metadata for chunk {chunk_index}: {enhanced_metadata}")
+                chunk = DocumentRetrieval(
                         content=chunk_text,
                         metadata=enhanced_metadata
                     )
-                )
+                self.logger.debug(f"*************Chunk {chunk_index}: {chunk.id}")
+                chunks.append(chunk)
                 chunk_index += 1
+        
+        self.logger.info(f"Text chunking completed. Created {len(chunks)} chunks")
+        self.logger.debug(f"Chunk indices: {[chunk.metadata['chunk_index'] for chunk in chunks]}")
         
         return chunks

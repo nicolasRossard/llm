@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from src.components.chatbot.application.ports.driven.embedding_port import EmbeddingPort
 from src.components.chatbot.application.ports.driving import ChatbotPort
 from src.components.chatbot.application.use_case_handlers import ProcessChatQuery, ProcessDocumentIngestion
 
@@ -6,7 +7,8 @@ from src.components.chatbot.application.services import DocumentProcessingServic
 from src.components.chatbot.domain.value_objects import Query, Response
 from src.components.chatbot.domain.value_objects.input_document import DocumentType, InputDocument
 from src.components.chatbot.infrastructure.api.v1.dto import response_to_dto
-from src.components.chatbot.infrastructure.di import get_document_processing_service, get_chatbot_service
+from src.components.chatbot.infrastructure.di import get_document_processing_service, get_chatbot_service, \
+    get_embedding_port
 
 rag_router = APIRouter(prefix="/chatbot", tags=["chatbot", "rag"])
 
@@ -49,9 +51,26 @@ async def upload_file(
         document_processing_service: DocumentProcessingService = Depends(get_document_processing_service)
 ):
     content = await file.read()
-    input_doc = InputDocument(content=content, type=doc_type)
+    input_doc = InputDocument(filename=file.filename, content=content, type=doc_type)
+    # try:
+    results = await ProcessDocumentIngestion(document_processing_service=document_processing_service).ingest_document(input_doc)
+    # except Exception as e:
+    #     raise HTTPException(status_code=500, detail=str(e))
+    return results
+
+
+@rag_router.post("/embed", response_model=dict)
+async def create_text_embedding(
+    text: str,
+    embedding_service: EmbeddingPort = Depends(get_embedding_port)
+):
+    """Create an embedding for the given text.
+    
+    This endpoint takes a text input and returns its vector embedding
+    using the configured embedding service.
+    """
     try:
-        results = await ProcessDocumentIngestion(document_processing_service=document_processing_service).ingest_document(input_doc)
+        embedding = await embedding_service.generate_embedding(text)
+        return {"text": text, "embedding": embedding}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    return results
