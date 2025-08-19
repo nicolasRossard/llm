@@ -56,7 +56,7 @@ backend
 └── uvicorn_debug.py          # Script for running the app in debug mode with uvicorn
 
 ```
-
+![documentation/archi.png](documentation/archi.png)
 ---
 
 ## ⚙️ Key Concepts
