@@ -1,13 +1,13 @@
 # 🧠 RAG with Hexagonal Architecture (FastAPI + LLM + Vector DB)
 
-This project implements a **Retrieval-Augmented Generation (RAG)** pipeline using:
+This project implements a **Retrieval-Augmented Generation (RAG)** pipeline featuring:
 
-- **FastAPI** for the API layer
-- **Ollama or OpenAI or litellm** as the LLM providers
-- **Qdrant** for vector similarity search
-- A **Hexagonal Architecture** (ports & adapters) with clear separation of components following **Domain-Driven Design** principles
-- **Domain-Driven Design (DDD)** to model complex business domains and maintain a ubiquitous language
-- Clear boundaries between application, domain, and infrastructure layers to ensure modularity and testability
+- **FastAPI** for the REST API layer
+- **Multiple LLM providers** (Ollama, OpenAI, or litellm) for flexible language model integration
+- **Qdrant** as the vector database for semantic similarity search
+- **Hexagonal Architecture** with ports & adapters pattern ensuring clean separation of concerns
+- **Domain-Driven Design (DDD)** principles for modeling complex business logic with a ubiquitous language
+- **Layered architecture** with distinct application, domain, and infrastructure boundaries for enhanced modularity and testability
 
 ---
 
@@ -85,13 +85,7 @@ docker compose up
 make run
 ````
 
----
-
-## 🧪 Testing Without Real Qdrant
-
-A fake implementation of `QdrantAdapter` is provided for local development/testing without connecting to a real vector DB.
-
----
+----
 
 ## 📌 License
 
