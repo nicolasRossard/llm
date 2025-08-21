@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class RAGConfig(BaseModel):
@@ -9,11 +9,7 @@ class RAGConfig(BaseModel):
         top_k (int): Number of top documents to retrieve for RAG.
         system_prompt (str): System prompt used to guide the assistant's responses.
     """
-    model_config = {
-        "extra": "forbid",  # Disallow extra fields not defined in the model
-        "allow_mutation": False   # Make the model immutable after creation
-    }
-
+    model_config = ConfigDict(extra="forbid", frozen=True)
     top_k: int = Field(5, description="Nombre de documents à récupérer pour le RAG.")
     system_prompt: str = Field(
         """You are a helpful assistant that answers questions based on the provided context.
