@@ -5,6 +5,7 @@ from model_config import ModelConfig
 from query import Query
 from rag_config import RAGConfig
 from responses import Response, RAGResponse
+from .vector_repository_config import VectorRepositoryConfig
 
 __all__ = [
     "DocumentRetrieval",
@@ -16,5 +17,6 @@ __all__ = [
     "Query",
     "RAGConfig",
     "RAGResponse",
-    "Response"
+    "Response",
+    "VectorRepositoryConfig"
 ]
