@@ -1,5 +1,5 @@
 from document_retrieval import DocumentRetrieval, DocumentRetrievalVector
-from input_document import InputDocument
+from input_document import InputDocument, InputDocumentResult
 from message import Message
 from model_config import ModelConfig
 from query import Query
@@ -10,6 +10,7 @@ __all__ = [
     "DocumentRetrieval",
     "DocumentRetrievalVector",
     "InputDocument",
+    "InputDocumentResult",
     "Message",
     "ModelConfig",
     "Query",
