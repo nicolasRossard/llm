@@ -1,0 +1,127 @@
+import logging
+from typing import List
+
+
+from src.components.rag.application.ports.driven import VectorRetrieverPort, LLMPort, EmbeddingPort
+from src.components.rag.config import RAGConfig
+from src.components.rag.domain.pipeline.rag_pipeline import RAGPipeline
+from src.components.rag.domain.value_objects import Query, DocumentRetrieval, Message, RAGResponse
+from src.components.rag.domain.value_objects.message_role import MessageRole
+
+
+class QueryService:
+    """Service for processing user queries using RAG."""
+
+    def __init__(
+            self,
+            vector_retriever_port: VectorRetrieverPort,
+            llm_port: LLMPort,
+            embedding_port: EmbeddingPort,
+            rag_config: RAGConfig,
+            rag_pipeline: RAGPipeline
+    ):
+        """Initialize QueryService.
+
+        Args:
+            vector_retriever_port: Vector search interface.
+            llm_port: LLM interface.
+            embedding_port: Text embedding interface.
+            rag_config: RAG configuration.
+            rag_pipeline: RAG pipeline for response generation.
+        """
+        self.rag_config = rag_config
+        self.embedding_port = embedding_port
+        self.vector_retriever_port = vector_retriever_port
+        self.llm_port = llm_port
+        self.rag_pipeline = rag_pipeline
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger.info("QueryService initialized successfully")
+
+    async def _retrieve_relevant_documents(self, query_embedding: list[float]) -> List[DocumentRetrieval]:
+        """Retrieve relevant documents using vector search.
+
+        Args:
+            query_embedding: Query embedding vector.
+
+        Returns:
+            List of relevant documents.
+        """
+        self.logger.debug(f"Starting document retrieval with embedding vector of size {len(query_embedding)}")
+        retrieved_documents = await self.vector_retriever_port.search(query_embedding)
+        self.logger.info(f"Retrieved {len(retrieved_documents)} documents from vector search")
+        self.logger.debug(f"Retrieved document IDs: {[doc.id for doc in retrieved_documents]}")
+        return retrieved_documents
+
+    async def _build_context_messages(self, user_query: str, retrieved_documents: List[DocumentRetrieval]) -> List[Message]:
+        """Create LLM prompt with retrieved context.
+
+        Args:
+            user_query: User query text.
+            retrieved_documents: Retrieved documents for context.
+
+        Returns:
+            Formatted messages for LLM.
+        """
+        self.logger.debug(f"Building context messages for query: '{user_query[:100]}...'")
+        context_content = "Here the context\n\n"
+        context_content += "\n\n".join([f"Document {i+1}:\n{doc.content}" for i, doc in enumerate(retrieved_documents)])
+
+        messages = [
+            Message(role=MessageRole.SYSTEM, content=self.rag_config.system_prompt),
+            Message(role=MessageRole.SYSTEM, content=context_content),
+            Message(role=MessageRole.USER, content=user_query)
+        ]
+
+        self.logger.info(f"Built context with {len(messages)} messages and {len(retrieved_documents)} documents")
+        self.logger.debug(f"Total context length: {len(context_content)} characters")
+        return messages
+
+    @staticmethod
+    async def _validate_query(query: Query) -> Query:
+        """Validate query content.
+
+        Args:
+            query: Query to validate.
+
+        Returns:
+            Validated query.
+
+        Raises:
+            ValueError: If query content is empty.
+        """
+        if not query.content.strip():
+            raise ValueError("Query content cannot be empty")
+        return query
+
+    async def process_query(self, query: Query) -> RAGResponse:
+        """Process query to generate RAG response.
+
+        Args:
+            query: User query to process.
+
+        Returns:
+            Generated response with sources.
+        """
+        self.logger.info(f"Starting query processing for query")
+        self.logger.debug(f"Query content: '{query.content[:200]}...'")
+        
+        validated_query = await self._validate_query(query)
+        self.logger.debug("Query validation completed successfully")
+        
+        self.logger.debug("Generating query embedding")
+        query_embedding = await self.embedding_port.embed_text(validated_query.content)
+        self.logger.debug(f"Generated embedding with {len(query_embedding)} dimensions")
+        
+        retrieved_documents = await self._retrieve_relevant_documents(query_embedding=query_embedding)
+        
+        context_messages = await self._build_context_messages(validated_query.content, retrieved_documents)
+        
+        self.logger.debug("Sending request to LLM")
+        llm_response = await self.llm_port.generate_response(context_messages)
+        self.logger.info("LLM response generated successfully")
+        
+        self.logger.debug("Generating final RAG response")
+        rag_response = await self.rag_pipeline.generate_response(llm_output=llm_response, sources=retrieved_documents)
+        
+        self.logger.info(f"Query processing completed successfully for query")
+        return rag_response
