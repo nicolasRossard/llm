@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
-from src.components.chatbot.domain.entities import Message
-from src.components.chatbot.domain.value_objects import Response
+
+from src.components.rag.domain.value_objects import Message, Response
 
 
 class LLMPort(ABC):
