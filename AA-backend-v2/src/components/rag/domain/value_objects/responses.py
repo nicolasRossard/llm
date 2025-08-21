@@ -2,7 +2,7 @@ from typing import List, Optional
 from datetime import datetime, timezone
 from pydantic import BaseModel, Field, ConfigDict
 
-from src.components.chatbot.domain.value_objects import DocumentRetrieval
+from src.components.rag.domain.value_objects import DocumentRetrieval
 
 
 class Response(BaseModel):
