@@ -2,8 +2,14 @@
 Outputs
 Domain to adapters
 """
-
-from .llm_port import LLMPort
 from .embedding_port import EmbeddingPort
+from .llm_port import LLMPort
+from .vector_retriever_port import VectorRetrieverPort
+from .vector_store_port import VectorStorePort
 
-__all__ = ["LLMPort", "EmbeddingPort",]
+__all__ = [
+    "EmbeddingPort",
+    "LLMPort",
+    "VectorRetrieverPort",
+    "VectorStorePort"
+]
