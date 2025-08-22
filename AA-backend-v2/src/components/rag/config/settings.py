@@ -2,7 +2,7 @@ import yaml
 from pathlib import Path
 
 from src.components.rag.config import LLMModelConfig, EmbeddingModelConfig, \
-    VectorRepositoryConfig, RAGPConfig
+    VectorRepositoryConfig, RAGConfig
 
 ROOT_DIR = Path(__file__).resolve().parent
 PARAMS_FILE = ROOT_DIR / "parameters.yml"
@@ -32,7 +32,7 @@ vector_repository_config = VectorRepositoryConfig(
     **yaml_params.get("vector_repository", {}),
     embedding_model_config=embedding_model_config
 )
-rag_config = build_config(RAGPConfig, yaml_params.get("rag", {}))
+rag_config = build_config(RAGConfig, yaml_params.get("rag", {}))
 llm_model_config = build_config(LLMModelConfig, yaml_params.get("llm_model", {}))
 
 
