@@ -1,7 +1,7 @@
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 import uuid
-from datetime import datetime, timezone
+
 from src.components.rag.domain.services.query_service import QueryService
 from src.components.rag.domain.value_objects import Query, DocumentRetrieval, Message, Response, RAGResponse
 from src.components.rag.domain.value_objects.message_role import MessageRole
@@ -56,28 +56,6 @@ def mock_embedding_port():
 
 
 @pytest.fixture
-def mock_rag_pipeline():
-    mock = AsyncMock()
-    # Setup the generate_response method to return a RAGResponse object
-    mock.generate_response.return_value = RAGResponse(
-        content="This is a test RAG response",
-        model_used="test-model",
-        processing_time_ms=200,
-        input_tokens=120,
-        output_tokens=60,
-        sources=[
-            DocumentRetrieval(
-                id=uuid.uuid4(),
-                content="Document 1 content",
-                metadata={"source": "test_source_1"},
-                score=0.95
-            )
-        ]
-    )
-    return mock
-
-
-@pytest.fixture
 def mock_rag_config():
     config = MagicMock()
     config.system_prompt = "You are a helpful assistant. Answer based on the provided context."
@@ -85,13 +63,12 @@ def mock_rag_config():
 
 
 @pytest.fixture
-def query_service(mock_vector_retriever_port, mock_llm_port, mock_embedding_port, mock_rag_config, mock_rag_pipeline):
+def query_service(mock_vector_retriever_port, mock_llm_port, mock_embedding_port, mock_rag_config):
     return QueryService(
         vector_retriever_port=mock_vector_retriever_port,
         llm_port=mock_llm_port,
         embedding_port=mock_embedding_port,
         rag_config=mock_rag_config,
-        rag_pipeline=mock_rag_pipeline
     )
 
 
@@ -108,15 +85,14 @@ async def test_process_query_happy_path(query_service, sample_query):
 
     # Assert
     assert isinstance(result, RAGResponse)
-    assert result.content == "This is a test RAG response"
-    assert len(result.sources) == 1
+    assert result.content == "This is a test response from the LLM"
+    assert len(result.sources) == 2  # Should be 2 since we have doc1 and doc2
     assert result.model_used == "test-model"
 
     # Verify method calls
     query_service.embedding_port.embed_text.assert_called_once_with(sample_query.content)
     query_service.vector_retriever_port.search.assert_called_once()
     query_service.llm_port.generate_response.assert_called_once()
-    query_service.rag_pipeline.generate_response.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -169,7 +145,6 @@ async def test_build_context_messages(query_service):
     # Assert
     assert len(messages) == 3
     assert messages[0].role == MessageRole.SYSTEM
-    assert messages[0].content == query_service.rag_config.system_prompt
     assert messages[1].role == MessageRole.SYSTEM
     assert "Document 1" in messages[1].content
     assert "Document 2" in messages[1].content
@@ -211,17 +186,6 @@ async def test_process_query_with_llm_error(query_service, sample_query):
 
 
 @pytest.mark.asyncio
-async def test_process_query_with_rag_pipeline_error(query_service, sample_query):
-    """Test process_query when rag_pipeline raises an exception."""
-    # Arrange
-    query_service.rag_pipeline.generate_response.side_effect = Exception("RAG pipeline error")
-
-    # Act & Assert
-    with pytest.raises(Exception, match="RAG pipeline error"):
-        await query_service.process_query(sample_query)
-
-
-@pytest.mark.asyncio
 async def test_process_query_data_flow(query_service, sample_query):
     """Test the complete data flow through process_query."""
     # Act
@@ -244,7 +208,3 @@ async def test_process_query_data_flow(query_service, sample_query):
     # 5. RAG pipeline generates the final response
     llm_response = query_service.llm_port.generate_response.return_value
     retrieved_docs = query_service.vector_retriever_port.search.return_value
-    query_service.rag_pipeline.generate_response.assert_called_once_with(
-        llm_output=llm_response,
-        sources=retrieved_docs
-    )

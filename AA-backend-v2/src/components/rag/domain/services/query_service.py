@@ -25,7 +25,6 @@ class QueryService:
             llm_port: LLM interface.
             embedding_port: Text embedding interface.
             rag_config: RAG configuration.
-            rag_pipeline: RAG pipeline for response generation.
         """
         self.rag_config = rag_config
         self.embedding_port = embedding_port
