@@ -5,8 +5,8 @@ description = "My butler which will help me for personal task or will represent 
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "fastapi[standard]>=0.116.1",
-    "litellm>=1.75.2",
+    "fastapi[standard]>=0.115.5,<0.116.0", # LiteLLM proxy dependency
+    "litellm[proxy]>=1.75.2",
     "opentelemetry-api>=1.36.0",
     "opentelemetry-exporter-otlp>=1.36.0",
     "opentelemetry-sdk>=1.36.0",
@@ -17,7 +17,7 @@ dependencies = [
     "pytest-asyncio>=1.1.0",
     "qdrant-client>=1.15.1",
     "requests>=2.32.4",
-    "uvicorn>=0.35.0",
+    "uvicorn>=0.29.0,<0.30.0",  # LiteLLM proxy dependency
 ]  # Main Core
 
 [dependency-groups]

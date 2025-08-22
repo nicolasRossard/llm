@@ -27,6 +27,7 @@ class Response(BaseModel):
     processing_time_ms: Optional[int] = Field(default=None)
     input_tokens: Optional[int] = Field(default=None)
     output_tokens: Optional[int] = Field(default=None)
+    provider: Optional[str] = Field(default=None, description="The LLM provider used to generate the response")
 
 
 class RAGResponse(Response):
