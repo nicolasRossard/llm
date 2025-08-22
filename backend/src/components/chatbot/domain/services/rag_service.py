@@ -12,7 +12,7 @@ class RAGService:
     This service coordinates the retrieval of relevant documents based on a query
     and prepares them for use by the LLM.
     """
-    
+
     def __init__(self, vector_repository: VectorRepository, llm_port: LLMPort):
         """Initialize the service with required dependencies.
         
@@ -21,8 +21,8 @@ class RAGService:
         """
         self.vector_repository = vector_repository
         self.llm_port = llm_port
-    
-    async def retrieve_relevant_context(self, query: Query, top_k: int = 5) -> List[DocumentRetrieval]:
+
+    async def _retrieve_relevant_context(self, query: Query, top_k: int = 5) -> List[DocumentRetrieval]:
         """Retrieve the most relevant documents for a given query.
         
         Args:
@@ -35,8 +35,9 @@ class RAGService:
         # Use the vector repository to perform semantic search
         relevant_docs = await self.vector_repository.search(query, top_k=top_k)
         return relevant_docs
-    
-    async def create_augmented_prompt(self, query: str, documents: List[DocumentRetrieval]) -> List[Message]:
+
+    @staticmethod
+    async def create_augmented_prompt(query: str, documents: List[DocumentRetrieval]) -> List[Message]:
         """Create a prompt with retrieved context for the LLM.
         
         Args:
@@ -47,19 +48,19 @@ class RAGService:
             List of messages to send to the LLM.
         """
         # Create a system message with context
-        context_str = "\n\n".join([f"Document {i+1}:\n{doc.content}" for i, doc in enumerate(documents)])
-        
+        context_str = "\n\n".join([f"Document {i + 1}:\n{doc.content}" for i, doc in enumerate(documents)])
+
         system_content = (
             "You are a helpful assistant that answers questions based on the provided context. "
             "If the answer is not in the context, say that you don't know instead of making up information. "
             "Use the following retrieved documents to answer the user's question:\n\n"
             f"{context_str}"
         )
-        
+
         # Create the message list
         messages = [
             Message(role=MessageRole.SYSTEM, content=system_content),
             Message(role=MessageRole.USER, content=query)
         ]
-        
+
         return messages

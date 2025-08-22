@@ -18,6 +18,7 @@ class Response(BaseModel):
     processing_time_ms: Optional[int] = None
     input_tokens: Optional[int] = None
     output_tokens: Optional[int] = None
+    provider: Optional[str] = None
 
 
 class RAGResponse(Response):
@@ -25,6 +26,5 @@ class RAGResponse(Response):
     Value Object for a llm response using RAG.
     """
     model_config = ConfigDict(frozen=False)
-
-    sources: List[DocumentRetrieval] = Field(default_factory=list)
+    sources: List[DocumentRetrieval] = Field(None, description="List of document retrievals used to generate the response")
 
