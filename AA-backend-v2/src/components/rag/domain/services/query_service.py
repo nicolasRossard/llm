@@ -4,7 +4,6 @@ from typing import List
 
 from src.components.rag.application.ports.driven import VectorRetrieverPort, LLMPort, EmbeddingPort
 from src.components.rag.config import RAGConfig
-from src.components.rag.domain.pipeline.rag_pipeline import RAGPipeline
 from src.components.rag.domain.value_objects import Query, DocumentRetrieval, Message, RAGResponse
 from src.components.rag.domain.value_objects.message_role import MessageRole
 
@@ -18,7 +17,6 @@ class QueryService:
             llm_port: LLMPort,
             embedding_port: EmbeddingPort,
             rag_config: RAGConfig,
-            rag_pipeline: RAGPipeline
     ):
         """Initialize QueryService.
 
@@ -33,7 +31,6 @@ class QueryService:
         self.embedding_port = embedding_port
         self.vector_retriever_port = vector_retriever_port
         self.llm_port = llm_port
-        self.rag_pipeline = rag_pipeline
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.info("QueryService initialized successfully")
 
@@ -102,26 +99,36 @@ class QueryService:
         Returns:
             Generated response with sources.
         """
-        self.logger.info(f"Starting query processing for query")
+        self.logger.info("Starting query processing for query")
         self.logger.debug(f"Query content: '{query.content[:200]}...'")
-        
+
+        # Step 1: Validate the query
         validated_query = await self._validate_query(query)
         self.logger.debug("Query validation completed successfully")
-        
+
+        # Step 2: Generate embedding for the query
         self.logger.debug("Generating query embedding")
         query_embedding = await self.embedding_port.embed_text(validated_query.content)
         self.logger.debug(f"Generated embedding with {len(query_embedding)} dimensions")
-        
+
+        # Step 3: Retrieve relevant documents and build context messages
         retrieved_documents = await self._retrieve_relevant_documents(query_embedding=query_embedding)
         
         context_messages = await self._build_context_messages(validated_query.content, retrieved_documents)
-        
+
+        # Step 4: Generate response from LLM
         self.logger.debug("Sending request to LLM")
         llm_response = await self.llm_port.generate_response(context_messages)
         self.logger.info("LLM response generated successfully")
-        
-        self.logger.debug("Generating final RAG response")
-        rag_response = await self.rag_pipeline.generate_response(llm_output=llm_response, sources=retrieved_documents)
-        
-        self.logger.info(f"Query processing completed successfully for query")
-        return rag_response
+
+        self.logger.info("Query processing completed successfully for query")
+        # Step 5: Format and return RAG response
+        return RAGResponse(
+            content=llm_response.content,
+            generated_at=llm_response.generated_at,
+            model_used=llm_response.model_used,
+            processing_time_ms=llm_response.processing_time_ms,
+            input_tokens=llm_response.input_tokens,
+            output_tokens=llm_response.output_tokens,
+            sources=retrieved_documents
+        )

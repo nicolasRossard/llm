@@ -1,9 +1,11 @@
 from typing import List
 
+from src.components.rag.application.ports.driving import QueryPort
+from src.components.rag.domain.services.query_service import QueryService
 from src.components.rag.domain.value_objects import DocumentRetrieval, RAGResponse, Query, Response
 
 
-class RAGPipeline:
+class QueryHandler(QueryPort):
     """Pure business logic for combining retrieval and LLM components.
 
     The RAGPipeline class orchestrates the Retrieval-Augmented Generation process
@@ -14,8 +16,10 @@ class RAGPipeline:
     specific retrieval or LLM implementations, following domain-driven design
     principles.
     """
+    def __init__(self, query_service: QueryService):
+        self.service = query_service
     
-    async def generate_response(self, user_query: Query, llm_output: Response, retrieved_chunks: List[DocumentRetrieval]) -> RAGResponse:
+    async def query(self, user_query: Query) -> RAGResponse:
         """Generate a RAG response by combining LLM output with retrieved sources.
         
         Takes the output from a language model and combines it with the retrieved
@@ -23,23 +27,10 @@ class RAGPipeline:
         response that includes both the generated content and source references.
         
         Args:
-            query (Query): The user query object containing the search request.
-            llm_output (Response): The response object from the language model
-                containing the generated text and metadata.
-            retrieved_chunks (List[DocumentRetrieval]): List of document chunks
-                that were retrieved and used as context for the generation.
-                
+            user_query (Query): The user query object containing the search request.
         Returns:
             RAGResponse: A complete RAG response containing the LLM output data
                 along with the source document references.
         """
 
-        return RAGResponse(
-            content=llm_output.content,
-            generated_at=llm_output.generated_at,
-            model_used=llm_output.model_used,
-            processing_time_ms=llm_output.processing_time_ms,
-            input_tokens=llm_output.input_tokens,
-            output_tokens=llm_output.output_tokens,
-            sources=retrieved_chunks
-        )
+        return await self.service.process_query(query=user_query)

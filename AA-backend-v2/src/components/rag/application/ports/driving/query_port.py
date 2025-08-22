@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-from src.components.rag.domain.value_objects import Query, Response
+from src.components.rag.domain.value_objects import Query, RAGResponse
 
 
 class QueryPort(ABC):
@@ -16,7 +16,7 @@ class QueryPort(ABC):
     """
 
     @abstractmethod
-    async def query(self, request: Query) -> Response:
+    async def query(self, request: Query) -> RAGResponse:
         """Processes a chat message and returns a response.
 
         This is the main use case for chat interactions. It takes a Query object
