@@ -42,7 +42,7 @@ class QueryService:
         Returns:
             List of relevant documents.
         """
-        self.logger.debug(f"Starting document retrieval with embedding vector of size {len(query_embedding)}")
+        self.logger.debug("Starting document retrieval ...")
         retrieved_documents = await self.vector_retriever_port.search(query_embedding)
         self.logger.info(f"Retrieved {len(retrieved_documents)} documents from vector search")
         self.logger.debug(f"Retrieved document IDs: {[doc.id for doc in retrieved_documents]}")
@@ -108,7 +108,6 @@ class QueryService:
         # Step 2: Generate embedding for the query
         self.logger.debug("Generating query embedding")
         query_embedding = await self.embedding_port.embed_text(validated_query.content)
-        self.logger.debug(f"Generated embedding with {len(query_embedding)} dimensions")
 
         # Step 3: Retrieve relevant documents and build context messages
         retrieved_documents = await self._retrieve_relevant_documents(query_embedding=query_embedding)

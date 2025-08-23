@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from src.components.rag.domain.value_objects import Embedding
+
 
 class EmbeddingPort(ABC):
     """Port interface for generating vector embeddings from text."""
@@ -17,7 +19,7 @@ class EmbeddingPort(ABC):
         self.fallback_dimension = fallback_dimension
 
     @abstractmethod
-    async def embed_text(self, text: str) -> list[float]:
+    async def embed_text(self, text: str) -> Embedding:
         """Generate an embedding vector for a given text.
 
         Args:
