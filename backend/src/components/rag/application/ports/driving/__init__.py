@@ -1,7 +1,7 @@
-from .ingestion_port import IngestionPort
+from .document_store_port import DocumentStorePort
 from .query_port import QueryPort
 
 __all__ = [
-    "IngestionPort",
+    "DocumentStorePort",
     "QueryPort",
 ]

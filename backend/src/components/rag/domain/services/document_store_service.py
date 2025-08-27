@@ -10,7 +10,7 @@ from src.components.rag.domain.value_objects.extracted_content import ExtractedC
 from src.components.rag.domain.value_objects.input_document import StoreDocumentResult, StoreDocumentStatus
 
 
-class IngestionServiceService:
+class DocumentStoreService:
     """
     Domain service for managing document operations.
     

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from src.components.rag.domain.value_objects import InputDocumentResult, DocumentRetrievalVector
+from src.components.rag.domain.value_objects import StoreDocumentResult, DocumentRetrievalVector
 
 
 class VectorStorePort(ABC):
@@ -15,7 +15,7 @@ class VectorStorePort(ABC):
     async def upsert(
             self,
             vector_documents: List[DocumentRetrievalVector],
-    ) -> InputDocumentResult:
+    ) -> StoreDocumentResult:
         """
         Ingest a chunks from a document into the vector database.
 

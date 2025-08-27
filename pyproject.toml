@@ -16,10 +16,12 @@ dependencies = [
 [dependency-groups]
 # Adapters
 ## Rag component
+### Retriever and storage port
 vector-retriever-qdrant = [
     "qdrant-client>=1.15.1",
 ]
 
+### Text extraction port
 text-extraction-docling = [
     "docling>=2.48.0",
 ]
@@ -28,5 +30,7 @@ text-extraction-docling = [
 dev = [
     "flake8>=7.3.0",
 ]
+
+# Selected adapter groups
 [tool.uv]
 default-groups = ["vector-retriever-qdrant", "text-extraction-docling"]

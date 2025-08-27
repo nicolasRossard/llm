@@ -19,7 +19,7 @@ class Embedding(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     model: str = Field(..., description="Name or identifier of the model that generated the embeddings")
-    embedding: List[float] = Field(..., description="The actual embedding vector representation")
+    vector: List[float] = Field(..., description="The actual embedding vector representation")
     prompt_tokens: Optional[int] = Field(default=None, description="Number of prompt tokens used during generation")
     completion_tokens: Optional[int] = Field(default=None, description="Number of completion tokens used during generation")
     generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="UTC timestamp when the embedding was generated")
