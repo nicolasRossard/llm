@@ -104,10 +104,19 @@ async def chunk_text(content: ExtractedContent) -> dict:
     """
     logger.info("chunk_text :: Processing new text chunking request")
 
-    docling_text_chunking_adapter: TextChunkingPort = DoclingTextChunkingAdapter()
-    result: List[DocumentRetrieval] = await docling_text_chunking_adapter.chunk_text(content)
+    try:
+        docling_text_chunking_adapter: TextChunkingPort = DoclingTextChunkingAdapter()
+        result: List[DocumentRetrieval] = await docling_text_chunking_adapter.chunk_text(content)
 
-    logger.info("chunk_text :: Text chunking completed successfully")
-    return result
+        logger.info("chunk_text :: Text chunking completed successfully")
+        logger.debug(f"chunk_text :: Generated {len(result)} chunks")
+        return result
+
+    except ValueError as e:
+        logger.error(f"chunk_text :: Validation error: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"chunk_text :: Error during text chunking: {str(e)}")
+        raise HTTPException(status_code=500, detail="An error occurred while chunking the text content")
 
 
