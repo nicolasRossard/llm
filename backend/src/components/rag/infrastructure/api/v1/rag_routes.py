@@ -1,14 +1,18 @@
 import logging
+from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
 
 from src.components.rag.application.handlers.query_handler import QueryHandler
-from src.components.rag.domain.value_objects import Query, RAGResponse, InputDocument
+from src.components.rag.application.ports.driven.text_chunking_port import TextChunkingPort
+from src.components.rag.domain.value_objects import Query, RAGResponse, InputDocument, DocumentRetrieval
 from src.components.rag.domain.value_objects.extracted_content import ExtractedContent
+from src.components.rag.infrastructure.adapters.driven.text_chunking.docling_text_chunking_adapter import \
+    DoclingTextChunkingAdapter
 from src.components.rag.infrastructure.adapters.driven.text_extraction.docling_text_extraction_adapter import \
     DoclingTextExtractionAdapter
 from src.components.rag.infrastructure.api.di.query_di import get_query_handler
-from src.components.rag.infrastructure.api.v1.dto import response_to_dto
+from src.components.rag.infrastructure.api.v1.dto import response_to_dto, restrieval_document_to_dto
 
 # Create a router for RAG endpoints
 rag_router = APIRouter(prefix="/rag", tags=["rag"])
@@ -37,13 +41,13 @@ async def chat(request: str, handler: QueryHandler = Depends(get_query_handler))
     try:
         # Create domain query object from request
         query = Query(content=request)
-        
+
         # Process the query
         response = await handler.query(query)
-        
+
         logger.info("chat :: Query processed successfully")
         return await response_to_dto(response)
-        
+
     except ValueError as e:
         logger.error(f"chat :: Validation error: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
@@ -85,3 +89,27 @@ async def extract_text(file: UploadFile = File(...)) -> ExtractedContent:
     except Exception as e:
         logger.error(f"extract_text :: Error extracting text: {str(e)}")
         raise HTTPException(status_code=500, detail="An error occurred while extracting text from the document")
+
+
+@rag_router.post("/admin/chunk_text", response_model=List[DocumentRetrieval])
+async def chunk_text(content: ExtractedContent) -> dict:
+    """
+    Chunk the provided text into smaller segments.
+
+    Args:
+        content: The text content to be chunked.
+
+    Returns:
+        List[DocumentRetrieval]: List of chunked text segments.
+
+    Raises:
+        HTTPException: If an error occurs during text chunking.
+    """
+    logger.info("chunk_text :: Processing new text chunking request")
+
+    docling_text_chunking_adapter: TextChunkingPort = DoclingTextChunkingAdapter()
+    result: List[DocumentRetrieval] = await docling_text_chunking_adapter.chunk_text(content)
+
+    logger.info("chunk_text :: Text chunking completed successfully")
+    return result
+
