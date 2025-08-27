@@ -118,5 +118,3 @@ async def chunk_text(content: ExtractedContent) -> list[DocumentRetrieval]:
     except Exception as e:
         logger.error(f"chunk_text :: Error during text chunking: {str(e)}")
         raise HTTPException(status_code=500, detail="An error occurred while chunking the text content")
-
-
