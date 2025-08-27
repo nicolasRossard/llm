@@ -4,15 +4,12 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
 
 from src.components.rag.application.handlers.query_handler import QueryHandler
-from src.components.rag.application.ports.driven.text_chunking_port import TextChunkingPort
+from src.components.rag.application.ports.driven import TextChunkingPort
 from src.components.rag.domain.value_objects import Query, RAGResponse, InputDocument, DocumentRetrieval
 from src.components.rag.domain.value_objects.extracted_content import ExtractedContent
-from src.components.rag.infrastructure.adapters.driven.text_chunking.docling_text_chunking_adapter import \
-    DoclingTextChunkingAdapter
-from src.components.rag.infrastructure.adapters.driven.text_extraction.docling_text_extraction_adapter import \
-    DoclingTextExtractionAdapter
+from src.components.rag.infrastructure.adapters.driven import DoclingTextExtractionAdapter, DoclingTextChunkingAdapter
 from src.components.rag.infrastructure.api.di.query_di import get_query_handler
-from src.components.rag.infrastructure.api.v1.dto import response_to_dto, restrieval_document_to_dto
+from src.components.rag.infrastructure.api.v1.dto import response_to_dto
 
 # Create a router for RAG endpoints
 rag_router = APIRouter(prefix="/rag", tags=["rag"])
@@ -112,4 +109,5 @@ async def chunk_text(content: ExtractedContent) -> dict:
 
     logger.info("chunk_text :: Text chunking completed successfully")
     return result
+
 

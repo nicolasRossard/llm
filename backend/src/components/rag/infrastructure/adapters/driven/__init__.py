@@ -4,6 +4,10 @@ from .llm.litellm_llm_adapter import LiteLLMAdapter
 from .text_extraction import DoclingTextExtractionAdapter
 from .text_chunking import DoclingTextChunkingAdapter
 __all__ = [
-    "LiteLLMBaseAdapter"
+    "LiteLLMBaseAdapter",
+    "LiteLLMEmbeddingAdapter",
+    "LiteLLMAdapter",
+    "DoclingTextExtractionAdapter",
+    "DoclingTextChunkingAdapter"
 
 ]
