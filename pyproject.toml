@@ -26,6 +26,11 @@ text-extraction-docling = [
     "docling>=2.48.0",
 ]
 
+### Text chunking port
+text-chunking-docling = [
+    "docling>=2.48.0",
+]
+
 # Other
 dev = [
     "flake8>=7.3.0",
@@ -33,4 +38,4 @@ dev = [
 
 # Selected adapter groups
 [tool.uv]
-default-groups = ["vector-retriever-qdrant", "text-extraction-docling"]
+default-groups = ["vector-retriever-qdrant", "text-extraction-docling", "text-chunking-docling"]

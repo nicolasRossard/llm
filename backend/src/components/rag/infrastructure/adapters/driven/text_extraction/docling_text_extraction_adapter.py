@@ -1,3 +1,4 @@
+import logging
 from io import BytesIO
 from annotated_types import doc
 from docling.datamodel.base_models import DocumentStream
@@ -9,18 +10,45 @@ from src.components.rag.domain.value_objects.extracted_content import ExtractedC
 
 
 class DoclingTextExtractionAdapter(TextExtractionPort):
+    """
+    Adapter for text extraction using Docling library.
+    
+    Implements TextExtractionPort to extract text content from documents
+    using the Docling document converter.
+    """
+
+    def __init__(self):
+        self.logger = logging.getLogger(self.__class__.__name__)
+
     async def extract_text(self, document: InputDocument) -> ExtractedContent:
+        """
+        Extract text content from a document using Docling converter.
+
+        Args:
+            document (InputDocument): The input document to extract text from.
+
+        Returns:
+            ExtractedContent: The extracted text content with metadata.
+        """
+        self.logger.info("extract_text :: Starting text extraction")
+        
         buf = BytesIO(document.content)
         source = DocumentStream(name=document.filename, stream=buf)
         converter = DocumentConverter()
+        
+        self.logger.debug(f"extract_text :: Processing document: {document.filename}")
         doc = converter.convert(source).document
 
-        print(doc.export_to_markdown())
+        extracted_text = doc.export_to_markdown()
+        self.logger.debug(f"extract_text :: Extracted text length: {len(extracted_text)}")
         
-        return ExtractedContent(
-            text=doc.export_to_markdown(),
+        result = ExtractedContent(
+            text=extracted_text,
             metadata={
                 "filename": document.filename,
                 "source_format": "docling"
             }
         )
+        
+        self.logger.info("extract_text :: Text extraction completed")
+        return result
