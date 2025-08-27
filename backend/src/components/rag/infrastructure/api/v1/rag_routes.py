@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, Any, Coroutine
 
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
 
@@ -89,7 +89,7 @@ async def extract_text(file: UploadFile = File(...)) -> ExtractedContent:
 
 
 @rag_router.post("/admin/chunk_text", response_model=List[DocumentRetrieval])
-async def chunk_text(content: ExtractedContent) -> dict:
+async def chunk_text(content: ExtractedContent) -> list[DocumentRetrieval]:
     """
     Chunk the provided text into smaller segments.
 
