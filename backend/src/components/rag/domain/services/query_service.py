@@ -43,7 +43,7 @@ class QueryService:
             List of relevant documents.
         """
         self.logger.debug("Starting document retrieval ...")
-        retrieved_documents = await self.vector_retriever_port.search(query_embedding.vector)
+        retrieved_documents = await self.vector_retriever_port.search(query=query_embedding.vector)
         self.logger.info(f"Retrieved {len(retrieved_documents)} documents from vector search")
         self.logger.debug(f"Retrieved document IDs: {[doc.id for doc in retrieved_documents]}")
         return retrieved_documents
@@ -110,7 +110,7 @@ class QueryService:
         query_embedding = await self.embedding_port.embed_text(validated_query.content)
 
         # Step 3: Retrieve relevant documents and build context messages
-        retrieved_documents = await self._retrieve_relevant_documents(query_embedding=query_embedding.vector)
+        retrieved_documents = await self._retrieve_relevant_documents(query_embedding=query_embedding)
         
         context_messages = await self._build_context_messages(validated_query.content, retrieved_documents)
 
