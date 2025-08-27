@@ -14,15 +14,19 @@ dependencies = [
 ]  # Main Core
 
 [dependency-groups]
-vector_port_qdrant = [
+# Adapters
+## Rag component
+vector-retriever-qdrant = [
     "qdrant-client>=1.15.1",
 ]
+
+text-extraction-docling = [
+    "docling>=2.48.0",
+]
+
+# Other
 dev = [
     "flake8>=7.3.0",
 ]
-#front = [
-#    "streamlit>=1.47.1",
-#]
-
-#[tool.uv]
-#default-groups = ["app"]
+[tool.uv]
+default-groups = ["vector-retriever-qdrant", "text-extraction-docling"]
