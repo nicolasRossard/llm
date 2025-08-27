@@ -9,7 +9,7 @@ from src.components.rag.domain.value_objects import Query, RAGResponse, InputDoc
 from src.components.rag.domain.value_objects.extracted_content import ExtractedContent
 from src.components.rag.infrastructure.adapters.driven import DoclingTextExtractionAdapter, DoclingTextChunkingAdapter
 from src.components.rag.infrastructure.api.di.query_di import get_query_handler
-from src.components.rag.infrastructure.api.v1.dto import response_to_dto
+from src.components.rag.infrastructure.api.v1.dto import rag_response_to_dto
 
 # Create a router for RAG endpoints
 rag_router = APIRouter(prefix="/rag", tags=["rag"])
@@ -43,7 +43,7 @@ async def chat(request: str, handler: QueryHandler = Depends(get_query_handler))
         response = await handler.query(query)
 
         logger.info("chat :: Query processed successfully")
-        return await response_to_dto(response)
+        return await rag_response_to_dto(response)
 
     except ValueError as e:
         logger.error(f"chat :: Validation error: {str(e)}")

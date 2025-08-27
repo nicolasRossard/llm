@@ -4,7 +4,7 @@ from datetime import datetime
 from src.components.rag.domain.value_objects import Response, RAGResponse, DocumentRetrieval
 
 
-async def response_to_dto(response: Union[Response, RAGResponse]) -> dict:
+async def rag_response_to_dto(response: Union[Response, RAGResponse]) -> dict:
     """Converts a Response or RAGResponse object to a JSON-compatible dictionary.
 
     This function transforms Response or RAGResponse objects into dictionaries that can
