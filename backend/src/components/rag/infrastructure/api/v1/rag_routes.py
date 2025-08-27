@@ -35,22 +35,14 @@ async def chat(request: str, handler: QueryHandler = Depends(get_query_handler))
     """
     logger.info("chat :: Processing new chat request")
 
-    try:
-        # Create domain query object from request
-        query = Query(content=request)
+    # Create domain query object from request
+    query = Query(content=request)
 
-        # Process the query
-        response = await handler.query(query)
+    # Process the query
+    response = await handler.query(query)
 
-        logger.info("chat :: Query processed successfully")
-        return await rag_response_to_dto(response)
-
-    except ValueError as e:
-        logger.error(f"chat :: Validation error: {str(e)}")
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        logger.error(f"chat :: Error processing query: {str(e)}")
-        raise HTTPException(status_code=500, detail="An error occurred while processing your query")
+    logger.info("chat :: Query processed successfully")
+    return await rag_response_to_dto(response)
 
 
 @rag_router.post("/admin/extract_text", response_model=ExtractedContent)

@@ -43,12 +43,13 @@ class LiteLLMEmbeddingAdapter(LiteLLMBaseAdapter, EmbeddingPort):
 
         response = Embedding(
             model=api_response['model'],
-            embedding=api_response['data'][0]['embedding'],
+            vector=api_response['data'][0]['embedding'],
             prompt_tokens=api_response['usage'].get('prompt_tokens'),
             completion_tokens=api_response['usage'].get('completion_tokens'),
             provider=self.config.provider,
             processing_time_ms=processing_time_ms
         )
+
         return response
 
     async def embed_text(self, text: str, model: str = None) -> Embedding:
