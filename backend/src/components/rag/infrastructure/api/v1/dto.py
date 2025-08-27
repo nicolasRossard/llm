@@ -1,7 +1,7 @@
 from typing import Union
 from datetime import datetime
 
-from src.components.rag.domain.value_objects import Response, RAGResponse
+from src.components.rag.domain.value_objects import Response, RAGResponse, DocumentRetrieval
 
 
 async def response_to_dto(response: Union[Response, RAGResponse]) -> dict:
