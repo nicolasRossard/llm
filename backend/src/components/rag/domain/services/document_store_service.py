@@ -20,7 +20,7 @@ class DocumentStoreService:
     
     def __init__(
         self, 
-        vector_store: VectorStorePort,
+        vector_store_port: VectorStorePort,
         embedding_port: EmbeddingPort,
         text_extraction_port: TextExtractionPort,
         text_chunking_port: TextChunkingPort
@@ -29,12 +29,12 @@ class DocumentStoreService:
         Initialize the document management service.
         
         Args:
-            vector_store: Port for vector storage operations
+            vector_store_port: Port for vector storage operations
             embedding_port: Port for generating vector embeddings from text
             text_extraction_port: Port for extracting text from documents
             text_chunking_port: Port for chunking text into smaller segments
         """
-        self.vector_store = vector_store
+        self.vector_store_port = vector_store_port
         self.embedding_port = embedding_port
         self.text_extraction_port = text_extraction_port
         self.text_chunking_port = text_chunking_port
@@ -76,7 +76,7 @@ class DocumentStoreService:
         This method takes an input document, processes it into chunks, generates embeddings
         for each chunk, and stores the resulting vectors in the vector repository for
         retrieval purposes.
-
+StoreDocumentResult
         Args:
             input_document: The input document to be processed and added
 
@@ -119,29 +119,6 @@ class DocumentStoreService:
 
         # Upsert the document vectors into the repository
         self.logger.info("ingest_document :: Storing document vectors in repository")
-        stored_ids = await self.vector_store.upsert(vectors)
-        self.logger.debug(f"ingest_document :: Successfully stored {len(stored_ids)} vectors with IDs: {stored_ids}")
-        
-        # Calculate statistics for the result
-        self.logger.info("ingest_document :: Calculating ingestion statistics")
-        total_chunks = len(vectors)
-        ingested_chunks = len(stored_ids)
-        failed_chunks = total_chunks - ingested_chunks
-        
-        # Determine status based on success rate
-        if failed_chunks == 0:
-            status = StoreDocumentStatus.SUCCESS
-        elif ingested_chunks > 0:
-            status = StoreDocumentStatus.PARTIAL
-        else:
-            status = StoreDocumentStatus.ERROR
-        
-        self.logger.debug(f"ingest_document :: Ingestion stats - Total: {total_chunks}, Ingested: {ingested_chunks}, Failed: {failed_chunks}, Status: {status}")
-        self.logger.info(f"ingest_document :: Document ingestion completed with status: {status}")
-        
-        return StoreDocumentResult(
-            total_chunks=total_chunks,
-            ingested_chunks=ingested_chunks,
-            failed_chunks=failed_chunks,
-            status=status
-        )
+        store_document_results: StoreDocumentResult = await self.vector_store_port.upsert(vectors)
+
+        return store_document_results

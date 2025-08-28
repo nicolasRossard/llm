@@ -48,9 +48,14 @@ class DoclingTextChunkingAdapter(TextChunkingPort):
         # Convert string to Docling document
         self.logger.debug(f"chunk_text :: Processing content from file: {extracted_content.metadata.get('filename', 'unknown.txt')}")
         converter = DocumentConverter()
+
+        # Format filename for DocumentStream with content already extracted
+        extracted_filename, type_ = extracted_content.metadata.get("filename", "unknown.txt").split(".")
+        extraction_type = extracted_content.metadata.get("format", "md")
+        extracted_filename = f"{extracted_filename}_extracted.{extraction_type}"  # TODO TO CHANGE here
         document_stream = self._create_document_stream_from_string(
             content=extracted_content.text,
-            filename=extracted_content.metadata.get("filename", "unknown.txt")
+            filename=extracted_filename
         )
         doc = converter.convert(
             source=document_stream,

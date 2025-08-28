@@ -56,8 +56,9 @@ class DoclingTextExtractionAdapter(TextExtractionPort):
             text=extracted_text,
             metadata={
                 "filename": document.filename,
-                "source_format": "docling"
-            }
+                "source_format": "docling",
+                "format": "md",
+            } # TODO standardize metadata across the application
         )
         
         self.logger.info("extract_text :: Text extraction completed")
