@@ -4,7 +4,7 @@ from typing import List
 
 from src.components.rag.application.ports.driven import VectorRetrieverPort, LLMPort, EmbeddingPort
 from src.components.rag.config import RAGConfig
-from src.components.rag.domain.value_objects import Query, DocumentRetrieval, Message, RAGResponse
+from src.components.rag.domain.value_objects import Query, DocumentRetrieval, Message, RAGResponse, Embedding
 from src.components.rag.domain.value_objects.message_role import MessageRole
 
 
@@ -33,7 +33,7 @@ class QueryService:
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.info("QueryService initialized successfully")
 
-    async def _retrieve_relevant_documents(self, query_embedding: list[float]) -> List[DocumentRetrieval]:
+    async def _retrieve_relevant_documents(self, query_embedding: Embedding) -> List[DocumentRetrieval]:
         """Retrieve relevant documents using vector search.
 
         Args:
@@ -43,9 +43,7 @@ class QueryService:
             List of relevant documents.
         """
         self.logger.debug("Starting document retrieval ...")
-        self.logger.debug(type(query_embedding))
-        self.logger.debug(query_embedding)
-        retrieved_documents = await self.vector_retriever_port.search(query_embedding)
+        retrieved_documents = await self.vector_retriever_port.search(query=query_embedding.vector)
         self.logger.info(f"Retrieved {len(retrieved_documents)} documents from vector search")
         self.logger.debug(f"Retrieved document IDs: {[doc.id for doc in retrieved_documents]}")
         return retrieved_documents
@@ -112,7 +110,7 @@ class QueryService:
         query_embedding = await self.embedding_port.embed_text(validated_query.content)
 
         # Step 3: Retrieve relevant documents and build context messages
-        retrieved_documents = await self._retrieve_relevant_documents(query_embedding=query_embedding.embedding)
+        retrieved_documents = await self._retrieve_relevant_documents(query_embedding=query_embedding)
         
         context_messages = await self._build_context_messages(validated_query.content, retrieved_documents)
 

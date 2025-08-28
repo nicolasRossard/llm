@@ -19,5 +19,6 @@ echo "Retrieving model (gemma3:270m)..."
 ollama pull gemma3:270m
 echo "Done."
 
+# Vision for documents ibm/granite3.3-vision:2b
 # Wait for Ollama process to finish.
 wait $pid

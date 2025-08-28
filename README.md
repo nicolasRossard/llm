@@ -12,49 +12,49 @@ This project implements a **Retrieval-Augmented Generation (RAG)** pipeline feat
 ---
 
 ## 📁 Project Structure
+```
+backend/
+├── config.py                  # Global configuration settings for the application
+├── logs/                      # Application logs directory
+├── main.py                    # Application entry point - initializes FastAPI and dependencies
+├── src/
+│   └── components/
+│       └── rag/               # RAG component following hexagonal architecture
+│           ├── application/   # Application layer
+│           │   ├── handlers/  # Use case handlers implementing business logic
+│           │   │              # (e.g., DocumentStoreHandler, QueryHandler)
+│           │   └── ports/     # Interfaces defining how to interact with the application core
+│           │       ├── driven/  # Interfaces that the application uses to communicate outward
+│           │       │            # (e.g., EmbeddingPort, LLMPort, VectorStorePort)
+│           │       └── driving/ # Interfaces that allow external systems to use the application
+│           │                    # (e.g., DocumentStorePort, QueryPort)
+│           ├── config/        # Component-specific configuration
+│           │                  # (e.g., RAGConfig)
+│           ├── domain/        # Domain layer - core business rules and concepts
+│           │   ├── entities/  # Business objects with identity and lifecycle
+│           │   │              # (e.g., QueryModel, RAGResponseModel)
+│           │   ├── services/  # Domain services that operate on multiple entities
+│           │   │              # (e.g., DocumentStoreService, QueryService)
+│           │   └── value_objects/ # Immutable objects without identity
+│           │                      # (e.g., Query, Embedding, Message, DocumentRetrieval)
+│           ├── infrastructure/ # Infrastructure layer - technical details and implementations
+│           │   ├── adapters/  # Connect the application to external systems
+│           │   │   ├── driven/ # Implementations of ports the application uses
+│           │   │   │           # (e.g., LiteLLMAdapter, DoclingAdapter)
+│           │   │   └── driving/ # Implementations of ports to drive the application
+│           │   ├── api/       # API definition and routing
+│           │   │   ├── di/    # Dependency Injection configuration
+│           │   │   └── v1/    # API version 1
+│           │   │       ├── dto.py        # Data Transfer Objects for API requests/responses
+│           │   │       └── rag_routes.py # FastAPI route definitions for RAG
+│           │   └── persistence/ # Repository implementations and data access
+│           │                    # (e.g., QdrantVectorStoreAdapter, QdrantVectorRetrieverAdapter)
+│           └── tests/         # Test files following the same structure as source code
+└── uvicorn_debug.py          # Script for running the app in debug mode with uvicorn
+```
 
 ```
-backend
-├── config.py                  # Global configuration settings for the application
-├── main.py                    # Application entry point - initializes FastAPI and dependencies
-├── src
-│   └── components
-│       └── chatbot            # RAG Chatbot component following hexagonal architecture
-│           ├── application    # Application layer
-│           │   ├── ports      # Interfaces defining how to interact with the application core
-│           │   │   ├── driven  # Interfaces that the application uses to communicate outward
-│           │   │   │          # (e.g., VectorRepository, LLMProvider interfaces)
-│           │   │   └── driving # Interfaces that allow external systems to use the application
-│           │   │              # (e.g., ChatbotPort interface)
-│           │   ├── services   # Implementation of application services that orchestrate use cases
-│           │   │              # (e.g., ChatCompletionService)
-│           │   └── use_case_handlers  # Business logic specific to each use case which are implemented with driving port interfaces
-│           ├── domain         # Domain layer - core business rules and concepts
-│           │   ├── entities   # Business objects with identity and lifecycle
-│           │   │              # (e.g., Message, Conversation, Document)
-│           │   ├── repositories # Repository interfaces for domain objects
-│           │   │              # (e.g., DocumentRepository, ConversationRepository)
-│           │   ├── services   # Domain services that operate on multiple entities
-│           │   │              # (e.g., VectorEmbeddingService)
-│           │   └── value_objects # Immutable objects without identity
-│           │                  # (e.g., Embedding, Query, DocumentChunk)
-│           └── infrastructure # Infrastructure layer - technical details and implementations
-│               ├── adapters   # Connect the application to external systems
-│               │   ├── driven # Implementations of ports the application uses
-│               │   │          # (e.g., OpenAIAdapter, QdrantAdapter)
-│               │   ├── driving # Implementations of ports to drive the application
-│               │              # (e.g., ChatbotRESTAdapter)
-│               ├── api        # API definition and routing
-│               │   └── v1     # API version 1
-│               │       ├── rag_routes.py # FastAPI route definitions for rag
-│               │       ├── dto.py           # Data Transfer Objects for API requests/responses
-│               ├── config     # Infrastructure-specific configuration
-│               │              # (e.g., QdrantConfig, LLMConfig)
-│               ├── di         # Dependency Injection configuration
-│               └── repositories # Implementation of repository interfaces
-│                   └── qdrant_vector_repository.py # Concrete implementation for Qdrant and persistence storage
-└── uvicorn_debug.py          # Script for running the app in debug mode with uvicorn
-
+WIP: The project structure is subject to change as the project evolves.
 ```
 ![documentation/archi.png](documentation/archi.png)
 ---
