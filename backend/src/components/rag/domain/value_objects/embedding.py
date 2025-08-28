@@ -11,7 +11,7 @@ class Embedding(BaseModel):
 
     Attributes:
         model (str): Name or identifier of the model that generated the embeddings.
-        embedding (List[float]): The actual embedding vector.
+        vector (List[float]): The actual embedding vector.
         prompt_tokens (int): Number of prompt tokens used.
         generated_at (datetime): UTC timestamp when the embedding was generated.
         provider (Optional[str]): The embedding provider used to generate the response.

@@ -42,6 +42,9 @@ dependencies = [
 dev = [
     { name = "flake8" },
 ]
+text-chunking-docling = [
+    { name = "docling" },
+]
 text-extraction-docling = [
     { name = "docling" },
 ]
@@ -61,6 +64,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [{ name = "flake8", specifier = ">=7.3.0" }]
+text-chunking-docling = [{ name = "docling", specifier = ">=2.48.0" }]
 text-extraction-docling = [{ name = "docling", specifier = ">=2.48.0" }]
 vector-retriever-qdrant = [{ name = "qdrant-client", specifier = ">=1.15.1" }]
 
