@@ -5,11 +5,14 @@ from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
 
 from src.components.rag.application.handlers.query_handler import QueryHandler
 from src.components.rag.application.ports.driven import TextChunkingPort
-from src.components.rag.domain.value_objects import Query, RAGResponse, InputDocument, DocumentRetrieval
+from src.components.rag.domain.value_objects import Query, RAGResponse, InputDocument, DocumentRetrieval, \
+    DocumentRetrievalVector, StoreDocumentResult, Embedding
 from src.components.rag.domain.value_objects.extracted_content import ExtractedContent
-from src.components.rag.infrastructure.adapters.driven import DoclingTextExtractionAdapter, DoclingTextChunkingAdapter
+from src.components.rag.infrastructure.adapters.driven import DoclingTextExtractionAdapter, DoclingTextChunkingAdapter, \
+    LiteLLMEmbeddingAdapter
 from src.components.rag.infrastructure.api.di.query_di import get_query_handler
 from src.components.rag.infrastructure.api.v1.dto import rag_response_to_dto
+from src.components.rag.infrastructure.persistence import QdrantVectorStoreAdapter
 
 # Create a router for RAG endpoints
 rag_router = APIRouter(prefix="/rag", tags=["rag"])
@@ -110,3 +113,25 @@ async def chunk_text(content: ExtractedContent) -> list[DocumentRetrieval]:
     except Exception as e:
         logger.error(f"chunk_text :: Error during text chunking: {str(e)}")
         raise HTTPException(status_code=500, detail="An error occurred while chunking the text content")
+
+
+@rag_router.post("/admin/chunk_embed", response_model=List[DocumentRetrievalVector])
+async def embed_chunk(documents: list[DocumentRetrieval]) -> list[DocumentRetrievalVector]:
+    embedding = LiteLLMEmbeddingAdapter()
+    docs = []
+    for doc in documents:
+        vector: Embedding = await embedding.embed_text(doc.content)
+        doc_vector: DocumentRetrievalVector = DocumentRetrievalVector(**doc.model_dump(), vector=vector.vector)
+        docs.append(doc_vector)
+    return docs
+
+
+@rag_router.post("/admin/upsert_documents", response_model=StoreDocumentResult)
+async def upsert_documents(documents: List[DocumentRetrievalVector]):
+    vector_store = QdrantVectorStoreAdapter()
+    # try:
+    result: StoreDocumentResult = await vector_store.upsert(documents)
+    return result
+    # except Exception as e:
+    #     logger.error(f"upsert_documents :: Error during upsert operation: {str(e)}")
+    #     raise HTTPException(status_code=500, detail="An error occurred while upserting documents")
