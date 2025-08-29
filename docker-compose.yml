@@ -24,23 +24,6 @@ services:
     networks:
       - llm_net
 
-#  open-webui:
-#    image: ghcr.io/open-webui/open-webui:main
-#    container_name: open-webui
-#    volumes:
-#      - ./open-webui:/app/backend/data
-#    depends_on:
-#      - ollama
-#    ports:
-#      - 3008:8080
-#    environment:
-#      - 'OLLAMA_BASE_URL=http://ollama:11434'
-#    extra_hosts:
-#      - "host.docker.internal:host-gateway"
-#    restart: unless-stopped
-#    networks:
-#      - llm_net
-
   qdrant:
     container_name: "rag_personal_vector_db"
     restart: on-failure
@@ -52,6 +35,19 @@ services:
       - ./qdrant_storage:/qdrant/storage:z
     networks:
       - llm_net
+      
+  redis:
+    container_name: "rag_event_broker"
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    networks:
+      - llm_net
+
 networks:
   llm_net:
     external: true
