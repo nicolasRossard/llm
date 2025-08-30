@@ -77,13 +77,80 @@ WIP: The project structure is subject to change as the project evolves.
 
 ## 🏁 Getting Started
 
-1. Clone the repository
-2. Install packages
+1. **Clone the repository**
+  ```bash
+  git clone https://github.com/nicolasRossard/llm.git
+  cd llm
+  ```
 
-```bash
-docker compose up
-make run
-````
+2. **Configure litellm**
+  - Clone the litellm project:
+    ```bash
+    git clone https://github.com/BerriAI/litellm
+    ```
+  - Modify the `docker-compose.yml` file to add the external network (you must create it first with `docker network create llm_net`):
+    ```yaml
+    networks:
+     llm_net:
+      external: true
+    ```
+  - Access the litellm interface :
+    ```
+    http://localhost:4000/ui
+    ```
+    (refer to documentation for credentials)
+  - Configure the models as instructed in `ollama_entrypoint.sh` in litellm using the Ollama provider
+
+Example for llama3.2 1B model:
+![documentation/litellm_ollama_model.png](documentation/litellm_ollama_model.png)
+```json
+{
+  "model_name": "ollama/llama3.2:1b",
+  "litellm_params": {
+    "api_base": "http://ollama:11434",
+    "custom_llm_provider": "ollama",
+    "use_in_pass_through": false,
+    "use_litellm_proxy": false,
+    "merge_reasoning_content_in_choices": false,
+    "model": "ollama/llama3.2:1b"
+  },
+  "model_info": {
+    "id": "49d1e6dc-6dec-44cc-8b29-8b469ebdc289",
+    "db_model": true,
+    "mode": "chat",
+    "access_via_team_ids": [],
+    "direct_access": true
+  },
+  "provider": "ollama",
+  "litellm_model_name": "ollama/llama3.2:1b",
+  "api_base": "http://ollama:11434",
+  "cleanedLitellmParams": {
+    "custom_llm_provider": "ollama",
+    "use_in_pass_through": false,
+    "use_litellm_proxy": false,
+    "merge_reasoning_content_in_choices": false
+  }
+}
+```
+
+3. **Configure the project**
+  - Copy the environment file:
+    ```bash
+    cp .env-dist .env
+    ```
+  - Edit the `.env` file with appropriate values, especially the litellm host
+
+4. **Start the application**
+  ```bash
+  docker compose up
+  ```
+
+5. **Access the interfaces**
+  - **FastAPI documentation**: [http://localhost:8000/docs](http://localhost:8000/docs) - Interactive API documentation with Swagger UI
+  - **Streamlit interface**: [http://localhost:8501](http://localhost:8501) - User-friendly web interface for the RAG application
+  - **LiteLLM documentation**: [http://localhost:4000](http://localhost:4000) - API documentation for the Litellm
+  - **LiteLLM management UI**: [http://localhost:4000/ui](http://localhost:4000/ui) - Web interface for managing LLM models and configurations
+
 
 ----
 
