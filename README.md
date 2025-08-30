@@ -77,13 +77,48 @@ WIP: The project structure is subject to change as the project evolves.
 
 ## 🏁 Getting Started
 
-1. Clone the repository
-2. Install packages
+1. **Clone the repository**
+  ```bash
+  git clone https://github.com/nicolasRossard/llm.git
+  cd llm
+  ```
 
-```bash
-docker compose up
-make run
-````
+2. **Configure litellm**
+  - Clone the litellm project:
+    ```bash
+    git clone https://github.com/BerriAI/litellm
+    ```
+  - Modify the `docker-compose.yml` file to add the external network:
+    ```yaml
+    networks:
+     llm_net:
+      external: true
+    ```
+  - Access the litellm interface :
+    ```
+    http://localhost:4000/ui
+    ```
+    (refer to documentation for credentials)
+  - Configure the models as instructed in `ollama_entrypoint.sh` in litellm using the Ollama provider
+
+3. **Configure the project**
+  - Copy the environment file:
+    ```bash
+    cp .env-dist .env
+    ```
+  - Edit the `.env` file with appropriate values, especially the litellm host
+
+4. **Start the application**
+  ```bash
+  docker compose up
+  ```
+
+5. **Access the interfaces**
+  - **FastAPI documentation**: [http://localhost:8000/docs](http://localhost:8000/docs) - Interactive API documentation with Swagger UI
+  - **Streamlit interface**: [http://localhost:8501](http://localhost:8501) - User-friendly web interface for the RAG application
+  - **LiteLLM documentation**: [http://localhost:4000](http://localhost:4000) - API documentation for the Litellm
+  - **LiteLLM management UI**: [http://localhost:4000/ui](http://localhost:4000/ui) - Web interface for managing LLM models and configurations
+
 
 ----
 
