@@ -88,7 +88,7 @@ WIP: The project structure is subject to change as the project evolves.
     ```bash
     git clone https://github.com/BerriAI/litellm
     ```
-  - Modify the `docker-compose.yml` file to add the external network:
+  - Modify the `docker-compose.yml` file to add the external network (you must create it first with `docker network create llm_net`):
     ```yaml
     networks:
      llm_net:
@@ -100,6 +100,38 @@ WIP: The project structure is subject to change as the project evolves.
     ```
     (refer to documentation for credentials)
   - Configure the models as instructed in `ollama_entrypoint.sh` in litellm using the Ollama provider
+
+Example for llama3.2 1B model:
+![documentation/litellm_ollama_model.png](documentation/litellm_ollama_model.png)
+```json
+{
+  "model_name": "ollama/llama3.2:1b",
+  "litellm_params": {
+    "api_base": "http://ollama:11434",
+    "custom_llm_provider": "ollama",
+    "use_in_pass_through": false,
+    "use_litellm_proxy": false,
+    "merge_reasoning_content_in_choices": false,
+    "model": "ollama/llama3.2:1b"
+  },
+  "model_info": {
+    "id": "49d1e6dc-6dec-44cc-8b29-8b469ebdc289",
+    "db_model": true,
+    "mode": "chat",
+    "access_via_team_ids": [],
+    "direct_access": true
+  },
+  "provider": "ollama",
+  "litellm_model_name": "ollama/llama3.2:1b",
+  "api_base": "http://ollama:11434",
+  "cleanedLitellmParams": {
+    "custom_llm_provider": "ollama",
+    "use_in_pass_through": false,
+    "use_litellm_proxy": false,
+    "merge_reasoning_content_in_choices": false
+  }
+}
+```
 
 3. **Configure the project**
   - Copy the environment file:
