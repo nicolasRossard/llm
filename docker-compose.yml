@@ -24,22 +24,42 @@ services:
     networks:
       - llm_net
 
-#  open-webui:
-#    image: ghcr.io/open-webui/open-webui:main
-#    container_name: open-webui
-#    volumes:
-#      - ./open-webui:/app/backend/data
-#    depends_on:
-#      - ollama
-#    ports:
-#      - 3008:8080
-#    environment:
-#      - 'OLLAMA_BASE_URL=http://ollama:11434'
-#    extra_hosts:
-#      - "host.docker.internal:host-gateway"
-#    restart: unless-stopped
-#    networks:
-#      - llm_net
+
+  app:
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
+    container_name: "app"
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - ollama
+      - qdrant
+    volumes:
+      - ./backend:/app/backend
+    networks:
+      - llm_net
+
+  front:
+    build:
+      context: .
+      dockerfile: ./front/Dockerfile
+    container_name: "front_app"
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8501:8501"
+    depends_on:
+      - ollama
+      - qdrant
+    volumes:
+      - ./front:/app/front
+    networks:
+      - llm_net
 
   qdrant:
     container_name: "rag_personal_vector_db"
@@ -52,6 +72,7 @@ services:
       - ./qdrant_storage:/qdrant/storage:z
     networks:
       - llm_net
+
 networks:
   llm_net:
     external: true

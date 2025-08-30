@@ -31,6 +31,10 @@ text-chunking-docling = [
     "docling>=2.48.0",
 ]
 
+front = [
+    "streamlit>=1.49.0",
+]
+
 # Other
 dev = [
     "flake8>=7.3.0",
