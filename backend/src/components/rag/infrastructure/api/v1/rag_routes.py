@@ -1,18 +1,18 @@
 import logging
-from typing import List, Any, Coroutine
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Query
 
 from src.components.rag.application.handlers.document_store_handler import DocumentStoreHandler
 from src.components.rag.application.handlers.query_handler import QueryHandler
 from src.components.rag.application.ports.driven import TextChunkingPort
-from src.components.rag.domain.value_objects import Query, RAGResponse, InputDocument, DocumentRetrieval, \
-    DocumentRetrievalVector, StoreDocumentResult, Embedding
+from src.components.rag.domain.value_objects import Query as QueryVO, RAGResponse, InputDocument, DocumentRetrieval, \
+    DocumentRetrievalVector, StoreDocumentResult, Embedding, Provider
 from src.components.rag.domain.value_objects.extracted_content import ExtractedContent
-from src.components.rag.infrastructure.adapters.driven import DoclingTextExtractionAdapter, DoclingTextChunkingAdapter, \
-    LiteLLMEmbeddingAdapter
+from src.components.rag.infrastructure.adapters.driven import DoclingTextExtractionAdapter, DoclingTextChunkingAdapter
 from src.components.rag.infrastructure.api.di.document_store_di import get_document_store_handler
 from src.components.rag.infrastructure.api.di.query_di import get_query_handler
+from src.components.rag.infrastructure.api.di.adapter_factory import get_embedding_adapter
 from src.components.rag.infrastructure.api.v1.dto import rag_response_to_dto
 from src.components.rag.infrastructure.persistence import QdrantVectorStoreAdapter
 
@@ -24,49 +24,58 @@ logger = logging.getLogger(__name__)
 
 
 @rag_router.post("/chat", response_model=RAGResponse)
-async def chat(request: str, handler: QueryHandler = Depends(get_query_handler)) -> dict:
+async def chat(
+    request: str,
+    provider: Optional[Provider] = Query(Provider.LITELLM, description="Provider to use for LLM (ollama or litellm)")
+) -> dict:
     """
     Process a user query through the RAG system.
-    
+
     Args:
         request (str): The query request containing the user's question.
-        handler (QueryHandler): The query handler dependency.
-    
+        provider (Provider, optional): The provider to use (ollama or litellm).
+
     Returns:
         dict: Response containing the generated answer and source documents.
-    
+
     Raises:
         HTTPException: If an error occurs during query processing.
     """
-    logger.info("chat :: Processing new chat request")
+    logger.info(f"chat :: Processing new chat request with provider: {provider}")
     logger.debug(f"chat :: Query content: {request}")
 
-    try:
-        # Create domain query object from request
-        query = Query(content=request)
+    # try:
+    # Create domain query object from request
+    query = QueryVO(content=request)
 
-        # Process the query
-        response = await handler.query(query)
+    # Get the handler with the specified provider
+    handler = get_query_handler(provider)
 
-        logger.info("chat :: Query processed successfully")
-        return await rag_response_to_dto(response)
-    
-    except ValueError as e:
-        logger.error(f"chat :: Validation error: {str(e)}")
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        logger.error(f"chat :: Error during query processing: {str(e)}")
-        raise HTTPException(status_code=500, detail="An error occurred while processing the query")
+    # Process the query
+    response = await handler.query(query)
+
+    logger.info("chat :: Query processed successfully")
+    return await rag_response_to_dto(response)
+
+    # except ValueError as e:
+    #     logger.error(f"chat :: Validation error: {str(e)}")
+    #     raise HTTPException(status_code=400, detail=str(e))
+    # except Exception as e:
+    #     logger.error(f"chat :: Error during query processing: {str(e)}")
+    #     raise HTTPException(status_code=500, detail="An error occurred while processing the query")
 
 
 @rag_router.post("/store_document", response_model=StoreDocumentResult)
-async def add_document(file: UploadFile = File(...), handler: DocumentStoreHandler = Depends(get_document_store_handler)) -> StoreDocumentResult:
+async def add_document(
+    file: UploadFile = File(...), 
+    provider: Optional[Provider] = Query(None, description="Provider to use for embeddings (ollama or litellm)")
+) -> StoreDocumentResult:
     """
     Store a document in the RAG system.
     
     Args:
         file (UploadFile): The uploaded file to be stored.
-        handler (DocumentStoreHandler): The document store handler dependency.
+        provider (Provider, optional): The provider to use for embeddings (ollama or litellm).
     
     Returns:
         StoreDocumentResult: Result of the document storage operation.
@@ -74,7 +83,7 @@ async def add_document(file: UploadFile = File(...), handler: DocumentStoreHandl
     Raises:
         HTTPException: If an error occurs during document storage.
     """
-    logger.info("add_document :: Processing new document storage request")
+    logger.info(f"add_document :: Processing new document storage request with provider: {provider}")
     logger.debug(f"add_document :: File details - name: {file.filename}, type: {file.content_type}")
     
     try:
@@ -83,6 +92,9 @@ async def add_document(file: UploadFile = File(...), handler: DocumentStoreHandl
             contents += chunk
         document: InputDocument = InputDocument(content=contents, filename=file.filename, type=file.content_type)
 
+        # Get the handler with the specified provider
+        handler = get_document_store_handler(provider)
+        
         # Process the document
         response: StoreDocumentResult = await handler.add_document(document)
 
@@ -170,12 +182,16 @@ async def chunk_text(content: ExtractedContent) -> list[DocumentRetrieval]:
 
 
 @rag_router.post("/admin/chunk_embed", response_model=List[DocumentRetrievalVector])
-async def embed_chunk(documents: list[DocumentRetrieval]) -> list[DocumentRetrievalVector]:
+async def embed_chunk(
+    documents: list[DocumentRetrieval],
+    provider: Optional[Provider] = Query(None, description="Provider to use for embeddings (ollama or litellm)")
+) -> list[DocumentRetrievalVector]:
     """
     Generate embeddings for document chunks.
 
     Args:
         documents (List[DocumentRetrieval]): List of document chunks to embed.
+        provider (Provider, optional): The provider to use for embeddings (ollama or litellm).
 
     Returns:
         List[DocumentRetrievalVector]: List of document chunks with embeddings.
@@ -183,11 +199,11 @@ async def embed_chunk(documents: list[DocumentRetrieval]) -> list[DocumentRetrie
     Raises:
         HTTPException: If an error occurs during embedding generation.
     """
-    logger.info("embed_chunk :: Processing new embedding generation request")
+    logger.info(f"embed_chunk :: Processing new embedding generation request with provider: {provider}")
     logger.debug(f"embed_chunk :: Number of documents to embed: {len(documents)}")
     
     try:
-        embedding = LiteLLMEmbeddingAdapter()
+        embedding = get_embedding_adapter(provider)
         docs = []
         for doc in documents:
             vector: Embedding = await embedding.embed_text(doc.content)
@@ -236,3 +252,15 @@ async def upsert_documents(documents: List[DocumentRetrievalVector]) -> StoreDoc
     except Exception as e:
         logger.error(f"upsert_documents :: Error during upsert operation: {str(e)}")
         raise HTTPException(status_code=500, detail="An error occurred while upserting documents")
+
+
+@rag_router.get("/providers", response_model=list[str])
+async def list_providers() -> list[str]:
+    """
+    List all available providers for LLM and embedding services.
+    
+    Returns:
+        List[str]: List of available provider names.
+    """
+    logger.info("list_providers :: Listing available providers")
+    return [provider.value for provider in Provider]
